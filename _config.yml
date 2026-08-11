@@ -1,0 +1,24 @@
+title: "Farol Middle Mile Dashboard"
+description: "Dashboard interativo com indicadores operacionais e integração SharePoint."
+url: "https://ceduardo-cyber.github.io"
+baseurl: "/Farol-Middle-Mile-Dashboard.github.io"
+repository: "ceduardo-cyber/Farol-Middle-Mile-Dashboard.github.io"
+lang: "pt-BR"
+timezone: "America/Sao_Paulo"
+markdown: kramdown
+theme: minima
+
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+exclude:
+  - .gitignore
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - vendor/
+  - .sass-cache/
+  - .jekyll-cache/
+  - .jekyll-metadata

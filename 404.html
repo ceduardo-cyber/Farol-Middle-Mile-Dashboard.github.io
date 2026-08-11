@@ -1,0 +1,1899 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Farol Middle Mile - Dashboard Interativo</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap 5 JS (OBRIGATÓRIO PARA ABAS) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS (XLSX) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- MSAL.js (login Microsoft / Graph API) -->
+    <script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
+    
+    <style>
+        :root {
+            --verde: #28a745;
+            --amarelo: #ffc107;
+            --vermelho: #dc3545;
+            --azul: #0d6efd;
+            --cinza: #6c757d;
+            --roxo: #6f42c1;
+            --laranja: #fd7e14;
+        }
+        
+        body {
+            background: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .dashboard-header h1 {
+            font-weight: 300;
+            font-size: 2rem;
+            margin: 0;
+        }
+        
+        .dashboard-header small {
+            opacity: 0.8;
+            font-weight: 300;
+        }
+        
+        .upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--azul);
+            background: #f0f7ff;
+        }
+        
+        .upload-area.dragover {
+            border-color: var(--verde);
+            background: #e8f5e9;
+        }
+        
+        .upload-area i {
+            font-size: 2rem;
+            color: #6c757d;
+        }
+        
+        .upload-area p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .file-info {
+            background: #e8f5e9;
+            border-radius: 8px;
+            padding: 8px 15px;
+            margin-top: 8px;
+            display: none;
+        }
+        
+        .file-info .file-name {
+            font-weight: 600;
+            color: #2e7d32;
+            font-size: 0.9rem;
+        }
+        
+        .nav-tabs .nav-link {
+            color: #495057;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-radius: 4px 4px 0 0;
+            padding: 10px 20px;
+            transition: all 0.2s;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            background: #e9ecef;
+            border-color: #dee2e6;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--azul);
+            font-weight: 600;
+            background: white;
+            border-color: #dee2e6 #dee2e6 white;
+        }
+        
+        .tab-pane {
+            display: none;
+            padding-top: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .tab-pane.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .kpi-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: transform 0.2s;
+            height: 100%;
+            border-left: 4px solid var(--cinza);
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+        }
+        
+        .kpi-card .kpi-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        
+        .kpi-card .kpi-label {
+            color: #6c757d;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .kpi-card .kpi-icon {
+            font-size: 1.5rem;
+            opacity: 0.3;
+        }
+        
+        .kpi-card.verde { border-left-color: var(--verde); }
+        .kpi-card.verde .kpi-value { color: var(--verde); }
+        .kpi-card.amarelo { border-left-color: var(--amarelo); }
+        .kpi-card.amarelo .kpi-value { color: var(--amarelo); }
+        .kpi-card.vermelho { border-left-color: var(--vermelho); }
+        .kpi-card.vermelho .kpi-value { color: var(--vermelho); }
+        .kpi-card.azul { border-left-color: var(--azul); }
+        .kpi-card.azul .kpi-value { color: var(--azul); }
+        .kpi-card.roxo { border-left-color: var(--roxo); }
+        .kpi-card.roxo .kpi-value { color: var(--roxo); }
+        
+        .card-dashboard {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+        }
+        
+        .card-dashboard .card-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            color: #1a237e;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 220px;
+        }
+        
+        .filter-section {
+            background: white;
+            border-radius: 12px;
+            padding: 12px 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+        }
+        
+        .filter-section select,
+        .filter-section input {
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            padding: 6px 10px;
+            font-size: 0.85rem;
+            width: 100%;
+        }
+        
+        .filter-section label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 2px;
+        }
+        
+        .status-badge {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        
+        .status-badge.on-time { background: #d4edda; color: #155724; }
+        .status-badge.off-time { background: #f8d7da; color: #721c24; }
+        .status-badge.em-rota { background: #cce5ff; color: #004085; }
+        .status-badge.finalizado { background: #d1ecf1; color: #0c5460; }
+        .status-badge.aguardando { background: #fff3cd; color: #856404; }
+        .status-badge.aguardando-nf { background: #f8d7da; color: #721c24; }
+        .status-badge.aguardando-previsao { background: #fff3cd; color: #856404; }
+        .status-badge.aguardando-chegada { background: #cce5ff; color: #004085; }
+        .status-badge.aguardando-carregamento { background: #e2e3e5; color: #383d41; }
+        .status-badge.carregado { background: #d4edda; color: #155724; }
+        .status-badge.cancelado { background: #f8d7da; color: #721c24; }
+        .status-badge.critico { background: #f8d7da; color: #721c24; }
+        .status-badge.atraso { background: #fff3cd; color: #856404; }
+        .status-badge.ok { background: #d4edda; color: #155724; }
+        
+        .table-dashboard {
+            font-size: 0.85rem;
+        }
+        
+        .table-dashboard th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+            font-size: 0.8rem;
+        }
+        
+        .table-dashboard td {
+            vertical-align: middle;
+            font-size: 0.85rem;
+        }
+        
+        .aba-indicador {
+            font-size: 0.7rem;
+            background: var(--azul);
+            color: white;
+            border-radius: 10px;
+            padding: 1px 8px;
+            margin-left: 5px;
+        }
+
+        .btn-limpar-filtros {
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-limpar-filtros:hover {
+            background: #5a6268;
+        }
+
+        .card-status-count {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .card-status-count strong {
+            color: #1a237e;
+        }
+
+        .agenda-datetime {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            background: #f8f9fa;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+        
+        @media (max-width: 768px) {
+            .kpi-card .kpi-value { font-size: 1.4rem; }
+            .dashboard-header h1 { font-size: 1.4rem; }
+            .upload-area { padding: 15px; }
+            .chart-container { height: 180px; }
+            .nav-tabs .nav-link { padding: 8px 12px; font-size: 0.85rem; }
+            .agenda-datetime { font-size: 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="dashboard-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-7">
+                <h1>
+                    <i class="fas fa-truck-fast me-2"></i>
+                    Farol Middle Mile
+                    <small class="ms-2">Dashboard Interativo</small>
+                </h1>
+                <p class="mb-0" style="opacity:0.8; font-size:0.9rem;">
+                    <i class="fas fa-calendar-alt me-1"></i> 
+                    Cross Docking | Transferências | Coletas | Atrasos
+                </p>
+            </div>
+            <div class="col-md-5 text-md-end">
+                <div class="update-time">
+                    <i class="fas fa-sync-alt me-1"></i>
+                    Última atualização: <span id="ultimaAtualizacao">--</span>
+                </div>
+                <div class="mt-1">
+                    <span class="badge bg-light text-dark" id="totalRegistros">
+                        <i class="fas fa-database me-1"></i> 0 registros
+                    </span>
+                    <span class="badge bg-light text-dark ms-1" id="statusArquivo">
+                        <i class="fas fa-file-excel me-1"></i> Nenhum arquivo
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- ÁREA DE UPLOAD -->
+    <div class="card-dashboard">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p><strong>Importar arquivo .xlsx</strong> - Clique ou arraste</p>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none;">
+                    <button class="btn btn-primary btn-sm" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-file-upload me-1"></i> Selecionar
+                    </button>
+                    <div class="file-info" id="fileInfo">
+                        <i class="fas fa-file-excel text-success me-2"></i>
+                        <span class="file-name" id="fileName">arquivo.xlsx</span>
+                        <button class="btn btn-outline-danger btn-sm ms-2" onclick="removerArquivo()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="alert alert-info mb-0 small">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Abas suportadas: <strong>Cross Docking</strong>, <strong>Farol atrasos</strong>, <strong>Coleta extra</strong>, <strong>Coleta Batata</strong>, <strong>Coleta R3</strong>
+                </div>
+            </div>
+        </div>
+        <hr class="my-3">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div id="msalStatus" class="small text-muted">
+                    <i class="fab fa-microsoft me-1"></i>
+                    Conexão automática com SharePoint: <strong id="msalStatusTexto">desconectado</strong>
+                </div>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <button class="btn btn-outline-primary btn-sm" id="btnConectarMS" onclick="conectarMicrosoft()">
+                    <i class="fab fa-microsoft me-1"></i> Conectar com Microsoft
+                </button>
+                <button class="btn btn-outline-secondary btn-sm d-none" id="btnAtualizarAgora" onclick="atualizarDaPlanilha()">
+                    <i class="fas fa-rotate me-1"></i> Atualizar agora
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTROS GLOBAIS COM DATA -->
+    <div class="filter-section">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small mb-0">Tipo Operação</label>
+                <select id="filtroTipo" class="form-select form-select-sm">
+                    <option value="TODOS">Todos</option>
+                    <option value="CROSS DOCKING">Cross Docking</option>
+                    <option value="TRANSFERÊNCIA">Transferência</option>
+                    <option value="COLETA">Coleta</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small mb-0">Destino</label>
+                <select id="filtroDestino" class="form-select form-select-sm">
+                    <option value="TODOS">Todos</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small mb-0">Transportadora</label>
+                <select id="filtroTransportadora" class="form-select form-select-sm">
+                    <option value="TODOS">Todos</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small mb-0">Data Inicial</label>
+                <input type="date" id="filtroDataInicio" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small mb-0">Data Final</label>
+                <input type="date" id="filtroDataFim" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-2">
+                <div class="d-flex gap-1">
+                    <button class="btn btn-primary btn-sm w-100" onclick="aplicarFiltros()">
+                        <i class="fas fa-filter me-1"></i> Filtrar
+                    </button>
+                    <button class="btn-limpar-filtros btn-sm" onclick="limparFiltros()" title="Limpar todos os filtros">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-md-12">
+                <span class="text-muted small me-2">Atalhos:</span>
+                <button class="btn btn-outline-secondary btn-sm" onclick="setarFiltroData(7)">Últimos 7 dias</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="setarFiltroData(15)">Últimos 15 dias</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="setarFiltroData(30)">Últimos 30 dias</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="setarFiltroData(90)">Últimos 90 dias</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="limparFiltrosData()">Limpar datas</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ABAS -->
+    <!-- ============================================================ -->
+    <ul class="nav nav-tabs" id="dashboardTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-cross" data-bs-toggle="tab" data-bs-target="#crossDocking" type="button" role="tab">
+                <i class="fas fa-warehouse me-1"></i> Cross Docking
+                <span class="aba-indicador" id="badgeCross">0</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-atrasos" data-bs-toggle="tab" data-bs-target="#farolAtrasos" type="button" role="tab">
+                <i class="fas fa-clock me-1"></i> Farol Atrasos
+                <span class="aba-indicador" id="badgeAtrasos">0</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-coletas" data-bs-toggle="tab" data-bs-target="#coletas" type="button" role="tab">
+                <i class="fas fa-boxes me-1"></i> Coletas
+                <span class="aba-indicador" id="badgeColetas">0</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-resumo" data-bs-toggle="tab" data-bs-target="#resumoGeral" type="button" role="tab">
+                <i class="fas fa-chart-pie me-1"></i> Resumo Geral
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+
+        <!-- ============================================================ -->
+        <!-- ABA 1: CROSS DOCKING -->
+        <!-- ============================================================ -->
+        <div class="tab-pane active show" id="crossDocking" role="tabpanel">
+            <!-- KPIs Cross Docking -->
+            <div class="row g-3 mb-4 mt-2">
+                <div class="col-md-3 col-6">
+                    <div class="kpi-card verde">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="kpi-label">On Time</div>
+                                <div class="kpi-value" id="cdOnTime">0%</div>
+                            </div>
+                            <div class="kpi-icon"><i class="fas fa-check-circle"></i></div>
+                        </div>
+                        <small class="text-muted" id="cdOnTimeDetalhe">0 de 0</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="kpi-card vermelho">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="kpi-label">Off Time</div>
+                                <div class="kpi-value" id="cdOffTime">0%</div>
+                            </div>
+                            <div class="kpi-icon"><i class="fas fa-times-circle"></i></div>
+                        </div>
+                        <small class="text-muted" id="cdOffTimeDetalhe">0 de 0</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="kpi-card azul">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="kpi-label">Em Rota</div>
+                                <div class="kpi-value" id="cdEmRota">0</div>
+                            </div>
+                            <div class="kpi-icon"><i class="fas fa-route"></i></div>
+                        </div>
+                        <small class="text-muted">Viagens em andamento</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="kpi-card amarelo">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="kpi-label">Média KM</div>
+                                <div class="kpi-value" id="cdMediaKm">0</div>
+                            </div>
+                            <div class="kpi-icon"><i class="fas fa-road"></i></div>
+                        </div>
+                        <small class="text-muted">Distância média</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos Cross Docking -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card-dashboard">
+                        <div class="card-title"><i class="fas fa-chart-pie me-2 text-primary"></i>Status das Operações</div>
+                        <div class="chart-container"><canvas id="cdGraficoStatus"></canvas></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card-dashboard">
+                        <div class="card-title"><i class="fas fa-chart-bar me-2 text-success"></i>Top 5 Destinos</div>
+                        <div class="chart-container"><canvas id="cdGraficoDestinos"></canvas></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card-dashboard">
+                        <div class="card-title"><i class="fas fa-clock me-2 text-warning"></i>Motivos de Atraso</div>
+                        <div class="chart-container"><canvas id="cdGraficoAtrasos"></canvas></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card-dashboard">
+                        <div class="card-title"><i class="fas fa-building me-2 text-info"></i>Performance por Transportadora</div>
+                        <div class="chart-container"><canvas id="cdGraficoTransportadoras"></canvas></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ========================================================== -->
+            <!-- CARD: STATUS DE CARREGAMENTO -->
+            <!-- ========================================================== -->
+            <div class="card-dashboard">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="card-title mb-0">
+                        <i class="fas fa-clock me-2 text-warning"></i>
+                        Status de Carregamento
+                        <span class="card-status-count ms-2">
+                            <strong id="cdStatusCount">0</strong> operações aguardando
+                        </span>
+                    </div>
+                    <div>
+                        <span class="badge bg-secondary" id="cdStatusFiltroAplicado">Filtrado: Aguardando</span>
+                    </div>
+                </div>
+                <div class="table-responsive mt-2">
+                    <table class="table table-dashboard table-striped" id="cdTabelaStatus">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Expedição</th>
+                                <th>Destino</th>
+                                <th>Transportadora</th>
+                                <th style="min-width:160px;">Agenda (Data & Hora)</th>
+                                <th>Progresso</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cdCorpoTabelaStatus">
+                            <tr><td colspan="6" class="text-center text-muted">Nenhuma operação em status de aguardo</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- ========================================================== -->
+            
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- ABA 2: FAROL ATRASOS -->
+        <!-- ============================================================ -->
+        <div class="tab-pane" id="farolAtrasos" role="tabpanel">
+            <div class="row g-3 mb-4 mt-2">
+                <div class="col-md-4 col-6">
+                    <div class="kpi-card vermelho">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="kpi-label">🔴 Críticos</div>
+                                <div class="kpi-value" id="faCriticos">0</div>
+                            </div>
+                            <div class="kpi-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                        </div>
+                        <small class="text-muted">Possível impacto nas rotas</small>
+                    </div>
+                </div>
+                <div class="col-md-4 col-6">
+                    <div class="kpi-card amarelo">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="kpi-label">🟡 Atraso Chegada</div>
+                                <div class="kpi-value" id="faChegada">0</div>
+                            </div>
+                            <div class="kpi-icon"><i class="fas fa-clock"></i></div>
+                        </div>
+                        <small class="text-muted">Atraso na chegada</small>
+                    </div>
+                </div>
+                <div class="col-md-4 col-6">
+                    <div class="kpi-card verde">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="kpi-label">🟢 Sem Impacto</div>
+                                <div class="kpi-value" id="faSemImpacto">0</div>
+                            </div>
+                            <div class="kpi-icon"><i class="fas fa-check-circle"></i></div>
+                        </div>
+                        <small class="text-muted">Operações normais</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card-dashboard">
+                        <div class="card-title"><i class="fas fa-chart-pie me-2 text-primary"></i>Distribuição dos Atrasos</div>
+                        <div class="chart-container"><canvas id="faGraficoDistribuicao"></canvas></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card-dashboard">
+                        <div class="card-title"><i class="fas fa-chart-bar me-2 text-warning"></i>Atrasos por Destino</div>
+                        <div class="chart-container"><canvas id="faGraficoDestinos"></canvas></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-dashboard">
+                <div class="card-title"><i class="fas fa-list me-2 text-secondary"></i>Últimos Atrasos</div>
+                <div class="table-responsive">
+                    <table class="table table-dashboard table-striped" id="faTabela">
+                        <thead><tr><th>Data</th><th>Destino</th><th>Transportadora</th><th>Status</th><th>Motivo</th><th>Responsável</th></tr></thead>
+                        <tbody id="faCorpoTabela"><tr><td colspan="6" class="text-center text-muted">Nenhum dado</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- ABA 3: COLETAS -->
+        <!-- ============================================================ -->
+        <div class="tab-pane" id="coletas" role="tabpanel">
+            <div class="row g-3 mb-4 mt-2">
+                <div class="col-md-3 col-6">
+                    <div class="kpi-card azul">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="kpi-label">Total Coletas</div>
+                                <div class="kpi-value" id="coTotal">0</div>
+                            </div>
+                            <div class="kpi-icon"><i class="fas fa-box"></i></div>
+                        </div>
+                        <small class="text-muted">Registros de coleta</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="kpi-card verde">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="kpi-label">Carregados</div>
+                                <div class="kpi-value" id="coCarregados">0</div>
+                            </div>
+                            <div class="kpi-icon"><i class="fas fa-check-circle"></i></div>
+                        </div>
+                        <small class="text-muted">Coletas finalizadas</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="kpi-card amarelo">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="kpi-label">Em Andamento</div>
+                                <div class="kpi-value" id="coAndamento">0</div>
+                            </div>
+                            <div class="kpi-icon"><i class="fas fa-spinner"></i></div>
+                        </div>
+                        <small class="text-muted">Aguardando carregamento</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="kpi-card vermelho">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="kpi-label">Cancelados</div>
+                                <div class="kpi-value" id="coCancelados">0</div>
+                            </div>
+                            <div class="kpi-icon"><i class="fas fa-ban"></i></div>
+                        </div>
+                        <small class="text-muted">Cancelados</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card-dashboard">
+                        <div class="card-title"><i class="fas fa-chart-bar me-2 text-success"></i>Coletas por Expedição</div>
+                        <div class="chart-container"><canvas id="coGraficoExpedicao"></canvas></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card-dashboard">
+                        <div class="card-title"><i class="fas fa-truck me-2 text-info"></i>Status das Coletas</div>
+                        <div class="chart-container"><canvas id="coGraficoStatus"></canvas></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-dashboard">
+                <div class="card-title"><i class="fas fa-list me-2 text-secondary"></i>Últimas Coletas</div>
+                <div class="table-responsive">
+                    <table class="table table-dashboard table-striped" id="coTabela">
+                        <thead><tr><th>Expedição</th><th>Destino</th><th>Transportadora</th><th>Status</th><th>Cliente</th><th>Data Coleta</th></tr></thead>
+                        <tbody id="coCorpoTabela"><tr><td colspan="6" class="text-center text-muted">Nenhum dado</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- ABA 4: RESUMO GERAL -->
+        <!-- ============================================================ -->
+        <div class="tab-pane" id="resumoGeral" role="tabpanel">
+            <div class="row g-3 mb-4 mt-2">
+                <div class="col-md-3 col-6">
+                    <div class="kpi-card roxo">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="kpi-label">Total Operações</div>
+                                <div class="kpi-value" id="rgTotal">0</div>
+                            </div>
+                            <div class="kpi-icon"><i class="fas fa-database"></i></div>
+                        </div>
+                        <small class="text-muted">Todos os registros</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="kpi-card verde">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="kpi-label">On Time Geral</div>
+                                <div class="kpi-value" id="rgOnTime">0%</div>
+                            </div>
+                            <div class="kpi-icon"><i class="fas fa-check-circle"></i></div>
+                        </div>
+                        <small class="text-muted">Carregamentos no prazo</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="kpi-card vermelho">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="kpi-label">Off Time Geral</div>
+                                <div class="kpi-value" id="rgOffTime">0%</div>
+                            </div>
+                            <div class="kpi-icon"><i class="fas fa-times-circle"></i></div>
+                        </div>
+                        <small class="text-muted">Carregamentos com atraso</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="kpi-card azul">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="kpi-label">Em Rota</div>
+                                <div class="kpi-value" id="rgEmRota">0</div>
+                            </div>
+                            <div class="kpi-icon"><i class="fas fa-route"></i></div>
+                        </div>
+                        <small class="text-muted">Viagens em andamento</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card-dashboard">
+                        <div class="card-title"><i class="fas fa-chart-pie me-2 text-primary"></i>Distribuição por Tipo</div>
+                        <div class="chart-container"><canvas id="rgGraficoTipo"></canvas></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card-dashboard">
+                        <div class="card-title"><i class="fas fa-chart-bar me-2 text-warning"></i>Top 5 Destinos Gerais</div>
+                        <div class="chart-container"><canvas id="rgGraficoDestinos"></canvas></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card-dashboard">
+                        <div class="card-title"><i class="fas fa-table me-2 text-secondary"></i>Resumo por Transportadora</div>
+                        <div class="table-responsive">
+                            <table class="table table-dashboard table-striped" id="rgTabela">
+                                <thead><tr><th>Transportadora</th><th>Total</th><th>On Time</th><th>Off Time</th><th>% On Time</th></tr></thead>
+                                <tbody id="rgCorpoTabela"><tr><td colspan="5" class="text-center text-muted">Nenhum dado</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- end tab-content -->
+</div>
+
+<!-- FOOTER -->
+<div class="text-center text-muted py-3" style="font-size:0.85rem; border-top:1px solid #dee2e6; margin-top:30px;">
+    <i class="fas fa-sync-alt fa-spin me-1"></i>
+    Após conectar, atualiza automaticamente a cada 5 minutos
+    <span class="mx-2">|</span>
+    <i class="far fa-calendar-alt me-1"></i>
+    Farol Middle Mile 2026
+</div>
+
+<script>
+// ============================================================
+// VARIÁVEIS GLOBAIS
+// ============================================================
+let dadosCompletos = {
+    crossDocking: [],
+    farolAtrasos: [],
+    coletas: []
+};
+let dadosFiltrados = {
+    crossDocking: [],
+    farolAtrasos: [],
+    coletas: []
+};
+let arquivoCarregado = false;
+
+// Gráficos
+let graficos = {};
+
+// ============================================================
+// CONEXÃO AUTOMÁTICA COM SHAREPOINT (MSAL + Microsoft Graph)
+// ============================================================
+// PREENCHER com os dados do app registrado no Azure AD (ver guia enviado):
+const MSAL_CLIENT_ID = 'COLE_AQUI_O_APPLICATION_CLIENT_ID';
+const MSAL_TENANT_ID  = 'COLE_AQUI_O_DIRECTORY_TENANT_ID';
+
+// Identificação fixa do arquivo "Farol Middle Mile - Coletas - Transferencias 2026"
+// (o item ID é estável mesmo se o arquivo for renomeado; obtido via busca no SharePoint)
+const SHAREPOINT_DRIVE_ID = 'b!nWqW410smE2SioVB9yM0rYeH5Oaalp1ArFL9a2z2Rpr33IFdywGkT5pg4CBgCO0b';
+const SHAREPOINT_ITEM_ID  = '012UAVVZ4Z6FJMCL3ISVHLZC63RWKU3ZEF';
+
+// Intervalo de atualização automática (em minutos)
+const INTERVALO_ATUALIZACAO_MIN = 5;
+
+let msalApp = null;
+let msalConta = null;
+let intervaloAutoUpdate = null;
+
+function msalConfigurado() {
+    return MSAL_CLIENT_ID && !MSAL_CLIENT_ID.startsWith('COLE_AQUI') &&
+           MSAL_TENANT_ID && !MSAL_TENANT_ID.startsWith('COLE_AQUI');
+}
+
+function inicializarMsal() {
+    if (!msalConfigurado()) {
+        document.getElementById('msalStatusTexto').textContent = 'não configurado (ver instruções do Azure AD)';
+        document.getElementById('btnConectarMS').disabled = true;
+        return;
+    }
+    msalApp = new msal.PublicClientApplication({
+        auth: {
+            clientId: MSAL_CLIENT_ID,
+            authority: `https://login.microsoftonline.com/${MSAL_TENANT_ID}`,
+            redirectUri: window.location.href.split('#')[0].split('?')[0]
+        },
+        cache: { cacheLocation: 'sessionStorage' }
+    });
+
+    msalApp.handleRedirectPromise().then(response => {
+        if (response && response.account) {
+            msalConta = response.account;
+            aoConectar();
+        } else {
+            const contas = msalApp.getAllAccounts();
+            if (contas.length > 0) {
+                msalConta = contas[0];
+                aoConectar();
+            }
+        }
+    }).catch(err => console.error('Erro MSAL redirect:', err));
+}
+
+async function conectarMicrosoft() {
+    if (!msalConfigurado()) {
+        alert('A conexão automática ainda não foi configurada. Siga o guia de registro no Azure AD e preencha MSAL_CLIENT_ID / MSAL_TENANT_ID no código.');
+        return;
+    }
+    try {
+        const resultado = await msalApp.loginPopup({ scopes: ['Files.Read'] });
+        msalConta = resultado.account;
+        aoConectar();
+    } catch (err) {
+        console.error('Erro no login Microsoft:', err);
+        mostrarMensagem('danger', '❌ Não foi possível conectar à conta Microsoft.');
+    }
+}
+
+function aoConectar() {
+    document.getElementById('msalStatusTexto').textContent = `conectado (${msalConta.username})`;
+    document.getElementById('btnConectarMS').classList.add('d-none');
+    document.getElementById('btnAtualizarAgora').classList.remove('d-none');
+
+    atualizarDaPlanilha();
+
+    if (intervaloAutoUpdate) clearInterval(intervaloAutoUpdate);
+    intervaloAutoUpdate = setInterval(atualizarDaPlanilha, INTERVALO_ATUALIZACAO_MIN * 60 * 1000);
+}
+
+async function obterTokenGraph() {
+    const request = { scopes: ['Files.Read'], account: msalConta };
+    try {
+        const resultado = await msalApp.acquireTokenSilent(request);
+        return resultado.accessToken;
+    } catch (err) {
+        const resultado = await msalApp.acquireTokenPopup(request);
+        return resultado.accessToken;
+    }
+}
+
+async function atualizarDaPlanilha() {
+    if (!msalConta) return;
+    try {
+        const token = await obterTokenGraph();
+        const url = `https://graph.microsoft.com/v1.0/drives/${SHAREPOINT_DRIVE_ID}/items/${SHAREPOINT_ITEM_ID}/content`;
+        const resp = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+
+        if (!resp.ok) throw new Error(`Graph API retornou status ${resp.status}`);
+
+        const buffer = await resp.arrayBuffer();
+        const workbook = XLSX.read(new Uint8Array(buffer), { type: 'array' });
+
+        processarCrossDocking(workbook);
+        processarFarolAtrasos(workbook);
+        processarColetas(workbook);
+
+        arquivoCarregado = true;
+        atualizarDashboard();
+
+        document.getElementById('fileInfo').style.display = 'block';
+        document.getElementById('fileName').textContent = 'Farol Middle Mile 2026 (SharePoint - automático)';
+        document.getElementById('statusArquivo').innerHTML = '<i class="fas fa-cloud text-success me-1"></i> Sincronizado com SharePoint';
+
+        const total = dadosCompletos.crossDocking.length + dadosCompletos.coletas.length;
+        mostrarMensagem('success', `✅ ${total} registros atualizados do SharePoint (${new Date().toLocaleTimeString('pt-BR')})`);
+    } catch (err) {
+        console.error('Erro ao atualizar da planilha:', err);
+        mostrarMensagem('danger', '❌ Falha ao buscar dados do SharePoint. O token pode ter expirado ou o acesso foi revogado.');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', inicializarMsal);
+
+// ============================================================
+// UPLOAD E LEITURA DO ARQUIVO
+// ============================================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    
+    uploadArea.addEventListener('click', function(e) {
+        if (e.target.closest('.btn-upload') || e.target.closest('.file-info')) return;
+        fileInput.click();
+    });
+    
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('dragover');
+    });
+    
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) {
+            processarArquivo(e.dataTransfer.files[0]);
+        }
+    });
+    
+    fileInput.addEventListener('change', function(e) {
+        if (this.files.length > 0) {
+            processarArquivo(this.files[0]);
+        }
+    });
+});
+
+function processarArquivo(file) {
+    const extensao = file.name.split('.').pop().toLowerCase();
+    if (!['xlsx', 'xls'].includes(extensao)) {
+        alert('Por favor, selecione um arquivo Excel (.xlsx ou .xls)');
+        return;
+    }
+    
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('fileInfo').style.display = 'block';
+    document.getElementById('statusArquivo').innerHTML = `<i class="fas fa-file-excel text-success me-1"></i> ${file.name}`;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            
+            processarCrossDocking(workbook);
+            processarFarolAtrasos(workbook);
+            processarColetas(workbook);
+            
+            arquivoCarregado = true;
+            atualizarDashboard();
+            
+            const total = dadosCompletos.crossDocking.length + dadosCompletos.coletas.length;
+            mostrarMensagem('success', `✅ ${total} registros importados de ${Object.keys(workbook.Sheets).length} abas!`);
+            
+        } catch (error) {
+            console.error('Erro:', error);
+            mostrarMensagem('danger', '❌ Erro ao ler o arquivo. Verifique se é um Excel válido.');
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function removerArquivo() {
+    dadosCompletos = { crossDocking: [], farolAtrasos: [], coletas: [] };
+    dadosFiltrados = { crossDocking: [], farolAtrasos: [], coletas: [] };
+    arquivoCarregado = false;
+    document.getElementById('fileInfo').style.display = 'none';
+    document.getElementById('fileInput').value = '';
+    document.getElementById('statusArquivo').innerHTML = '<i class="fas fa-file-excel me-1"></i> Nenhum arquivo';
+    atualizarDashboard();
+    mostrarMensagem('info', '🔄 Dados removidos. Importe um novo arquivo.');
+}
+
+function mostrarMensagem(tipo, texto) {
+    const div = document.createElement('div');
+    div.className = `alert alert-${tipo} alert-dismissible fade show`;
+    div.role = 'alert';
+    div.innerHTML = `${texto} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+    div.style.position = 'fixed';
+    div.style.top = '20px';
+    div.style.right = '20px';
+    div.style.zIndex = '9999';
+    div.style.maxWidth = '400px';
+    document.body.appendChild(div);
+    setTimeout(() => { if (div.parentNode) div.remove(); }, 5000);
+}
+
+// ============================================================
+// PROCESSAMENTO DAS ABAS
+// ============================================================
+
+function processarCrossDocking(workbook) {
+    const sheet = workbook.Sheets['Cross Docking'];
+    if (!sheet) {
+        console.warn('Aba "Cross Docking" não encontrada');
+        return;
+    }
+    
+    const raw = XLSX.utils.sheet_to_json(sheet);
+    console.log(`Cross Docking: ${raw.length} linhas lidas`);
+    
+    dadosCompletos.crossDocking = raw
+        .filter(row => row['DESTINO'] && row['DESTINO'] !== '#N/D')
+        .map(row => ({
+            TIPO_OPERACAO: row['TIPO DE OPERAÇÃO'] || row['TIPO_OPERACAO'] || '--',
+            EXPEDICAO: row['EXPEDIÇÃO'] || '--',
+            DESTINO: row['DESTINO'] || '--',
+            TRANSPORTADORA: row['TRANSPORTADORA'] || '--',
+            STATUS_VIAGEM: row['STATUS DE VIAGEM'] || row['STATUS_VIAGEM'] || '--',
+            STATUS: row['STATUS'] || '--',
+            ON_TIME_CARREGAMENTO: row['ON TIME CARREGAMENTO'] || row['ON_TIME_CARREGAMENTO'] || '--',
+            ON_TIME_DESCARGA: row['ON TIME DESCARGA'] || row['ON_TIME_DESCARGA'] || '--',
+            KM: parseFloat(String(row['KM'] || 0).replace(',', '.')) || 0,
+            PROGRESSO: parseFloat(String(row['PROGRESSO ATUAL'] || row['PROGRESSO'] || 0).replace('%', '').replace(',', '.')) || 0,
+            MOTIVO_ATRASO: row['MOTIVO ATRASO CARREGAMENTO'] || row['MOTIVO_ATRASO'] || '--',
+            RESPONSAVEL: row['RESPONSAVEL'] || '--',
+            TIPOLOGIA: row['TIPOLOGIA CARGA'] || row['TIPOLOGIA'] || '--',
+            CONFIRMACAO: row['CONFIRMAÇÃO DE DESCARGA'] || row['CONFIRMACAO_DESCARGA'] || '--',
+            DATA_AGENDA: row['AGENDA CARREGAMENTO'] || row['AGENDA'] || null,
+            AGENDA: row['AGENDA CARREGAMENTO'] || row['AGENDA'] || '--'
+        }));
+    
+    document.getElementById('badgeCross').textContent = dadosCompletos.crossDocking.length;
+}
+
+function processarFarolAtrasos(workbook) {
+    const sheet = workbook.Sheets['Farol atrasos'];
+    if (!sheet) {
+        console.warn('Aba "Farol atrasos" não encontrada');
+        return;
+    }
+    
+    const raw = XLSX.utils.sheet_to_json(sheet);
+    console.log(`Farol atrasos: ${raw.length} linhas lidas`);
+    
+    dadosCompletos.farolAtrasos = raw
+        .filter(row => row['Data'] || row['Destino'])
+        .map(row => {
+            let dataRaw = row['Data'] || '--';
+            let dataObj = null;
+            try {
+                if (typeof dataRaw === 'number') {
+                    dataObj = new Date((dataRaw - 25569) * 86400 * 1000);
+                } else if (typeof dataRaw === 'string' && dataRaw.includes('/')) {
+                    const partes = dataRaw.split('/');
+                    if (partes.length === 3) {
+                        dataObj = new Date(`${partes[2]}-${partes[1]}-${partes[0]}`);
+                    }
+                }
+            } catch(e) { /* ignora */ }
+            
+            return {
+                Data: dataRaw,
+                DataObj: dataObj,
+                Expedicao: row['Expedição'] || row['EXPEDIÇÃO'] || '--',
+                Destino: row['Destino'] || row['DESTINO'] || '--',
+                Transportadora: row['Tranportador'] || row['Transportador'] || row['TRANSPORTADORA'] || '--',
+                Status: row['Status'] || '--',
+                Carreta: row['Carreta'] || '--',
+                Rotas: row['Rotas'] || '--',
+                KmRestante: row['Km restante'] || row['KM RESTANTE'] || 0,
+                Agenda: row['Agenda'] || '--',
+                PrevChegada: row['Prev. Chegada'] || row['PREV_CHEGADA'] || '--',
+                HorarioChegada: row['HORÁRIO DE CHEGADA'] || row['HORARIO_CHEGADA'] || '--',
+                Recebimento: row['Recebimento'] || '--',
+                Impacto: row['Impacto'] || '--',
+                PlanoAcao: row['Plano de Ação'] || row['PLANO_ACAO'] || '--',
+                Motivo: row['Motivo'] || '--',
+                Responsavel: row['REPONSAVEL'] || row['RESPONSAVEL'] || '--'
+            };
+        });
+    
+    document.getElementById('badgeAtrasos').textContent = dadosCompletos.farolAtrasos.length;
+}
+
+function processarColetas(workbook) {
+    const nomes = ['Coleta extra', 'Coleta Taboão', 'Coleta Batata', 'Coleta R3'];
+    let todas = [];
+    
+    nomes.forEach(nome => {
+        const sheet = workbook.Sheets[nome];
+        if (sheet) {
+            const raw = XLSX.utils.sheet_to_json(sheet);
+            console.log(`${nome}: ${raw.length} linhas lidas`);
+            todas = todas.concat(raw);
+        }
+    });
+    
+    dadosCompletos.coletas = todas
+        .filter(row => {
+            const tipo = row['TIPO DE OPERAÇÃO'] || row['TIPO_OPERACAO'] || '';
+            return tipo.includes('COLETA') || tipo === 'COLETA';
+        })
+        .map(row => {
+            let dataColeta = row['DATA COLETA'] || row['Data Coleta'] || '--';
+            let dataObj = null;
+            try {
+                if (typeof dataColeta === 'number') {
+                    dataObj = new Date((dataColeta - 25569) * 86400 * 1000);
+                } else if (typeof dataColeta === 'string' && dataColeta.includes('/')) {
+                    const partes = dataColeta.split('/');
+                    if (partes.length === 3) {
+                        dataObj = new Date(`${partes[2]}-${partes[1]}-${partes[0]}`);
+                    }
+                }
+            } catch(e) { /* ignora */ }
+            
+            return {
+                TIPO_OPERACAO: 'COLETA',
+                EXPEDICAO: row['EXPEDIÇÃO'] || '--',
+                DESTINO: row['DESTINO'] || '--',
+                TRANSPORTADORA: row['TRANSPORTADORA'] || '--',
+                STATUS: row['STATUS'] || row['Status'] || '--',
+                CLIENTE: row['CLIENTE'] || '--',
+                DATA_COLETA: dataColeta,
+                DataObj: dataObj,
+                DATA_ENTREGA: row['DATA DE ENTREGA'] || row['Data de Entrega'] || '--',
+                CONFIRMACAO: row['CONFIRMAÇÃO DE DESCARGA'] || row['Confirmacao'] || '--',
+                CUSTO: row['CUSTO'] || row['Custo'] || 0,
+                PRODUTO: row['PRODUTO'] || '--',
+                PLACA: row['PLACA'] || row['Placa'] || '--'
+            };
+        });
+    
+    document.getElementById('badgeColetas').textContent = dadosCompletos.coletas.length;
+}
+
+// ============================================================
+// FUNÇÃO PARA FORMATAR DATA/HORA
+// ============================================================
+
+function formatarDataHora(valor) {
+    if (!valor || valor === '--' || valor === '#N/D' || valor === '#REF!') return '--';
+    
+    // Se for um número (data serial do Excel)
+    if (typeof valor === 'number') {
+        try {
+            const data = new Date((valor - 25569) * 86400 * 1000);
+            return formatarDateObj(data);
+        } catch(e) { return '--'; }
+    }
+    
+    // Se for string
+    if (typeof valor === 'string') {
+        // Tenta parsear como data ISO (yyyy-mm-dd ou yyyy-mm-ddTHH:MM)
+        if (valor.includes('-') && valor.length >= 10) {
+            try {
+                const data = new Date(valor);
+                if (!isNaN(data)) {
+                    return formatarDateObj(data);
+                }
+            } catch(e) { /* ignora */ }
+        }
+        
+        // Tenta parsear como data brasileira (dd/mm/yyyy ou dd/mm/yyyy HH:MM)
+        if (valor.includes('/')) {
+            try {
+                // Remove espaços extras
+                valor = valor.trim();
+                
+                // Verifica se tem hora
+                let partes = valor.split(' ');
+                let dataParte = partes[0];
+                let horaParte = partes.length > 1 ? partes[1] : '';
+                
+                let dataParts = dataParte.split('/');
+                if (dataParts.length === 3) {
+                    let ano = parseInt(dataParts[2]);
+                    let mes = parseInt(dataParts[1]) - 1;
+                    let dia = parseInt(dataParts[0]);
+                    
+                    // Se ano tem 2 dígitos, assume 20xx
+                    if (ano < 100) ano += 2000;
+                    
+                    let horas = 0, minutos = 0;
+                    if (horaParte) {
+                        let horaParts = horaParte.split(':');
+                        if (horaParts.length >= 2) {
+                            horas = parseInt(horaParts[0]) || 0;
+                            minutos = parseInt(horaParts[1]) || 0;
+                        }
+                    }
+                    
+                    const data = new Date(ano, mes, dia, horas, minutos);
+                    if (!isNaN(data)) {
+                        return formatarDateObj(data);
+                    }
+                }
+            } catch(e) { /* ignora */ }
+        }
+    }
+    
+    // Se não conseguiu formatar, retorna o valor original
+    return valor;
+}
+
+function formatarDateObj(data) {
+    if (!data || isNaN(data)) return '--';
+    const dia = String(data.getDate()).padStart(2, '0');
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    const ano = data.getFullYear();
+    const hora = String(data.getHours()).padStart(2, '0');
+    const min = String(data.getMinutes()).padStart(2, '0');
+    return `${dia}/${mes}/${ano} ${hora}:${min}`;
+}
+
+// ============================================================
+// FUNÇÕES DE FILTRO POR DATA
+// ============================================================
+
+function setarFiltroData(dias) {
+    const hoje = new Date();
+    const dataInicio = new Date(hoje);
+    dataInicio.setDate(hoje.getDate() - dias);
+    
+    const formatar = (d) => {
+        const ano = d.getFullYear();
+        const mes = String(d.getMonth() + 1).padStart(2, '0');
+        const dia = String(d.getDate()).padStart(2, '0');
+        return `${ano}-${mes}-${dia}`;
+    };
+    
+    document.getElementById('filtroDataInicio').value = formatar(dataInicio);
+    document.getElementById('filtroDataFim').value = formatar(hoje);
+    
+    aplicarFiltros();
+}
+
+function limparFiltrosData() {
+    document.getElementById('filtroDataInicio').value = '';
+    document.getElementById('filtroDataFim').value = '';
+    aplicarFiltros();
+}
+
+function limparFiltros() {
+    document.getElementById('filtroTipo').value = 'TODOS';
+    document.getElementById('filtroDestino').value = 'TODOS';
+    document.getElementById('filtroTransportadora').value = 'TODOS';
+    document.getElementById('filtroDataInicio').value = '';
+    document.getElementById('filtroDataFim').value = '';
+    aplicarFiltros();
+}
+
+function getDataFromString(str) {
+    if (!str || str === '--') return null;
+    try {
+        if (typeof str === 'number') {
+            return new Date((str - 25569) * 86400 * 1000);
+        }
+        if (typeof str === 'string') {
+            if (str.includes('/')) {
+                const partes = str.split('/');
+                if (partes.length === 3) {
+                    return new Date(`${partes[2]}-${partes[1]}-${partes[0]}`);
+                }
+            }
+            if (str.includes('-')) {
+                return new Date(str);
+            }
+        }
+    } catch(e) { /* ignora */ }
+    return null;
+}
+
+// ============================================================
+// ATUALIZAÇÃO DO DASHBOARD
+// ============================================================
+
+function atualizarDashboard() {
+    document.getElementById('ultimaAtualizacao').textContent = new Date().toLocaleString('pt-BR');
+    
+    const total = dadosCompletos.crossDocking.length + dadosCompletos.coletas.length;
+    document.getElementById('totalRegistros').textContent = total + ' registros';
+    
+    popularFiltros();
+    aplicarFiltros();
+    atualizarTodosGraficos();
+}
+
+function popularFiltros() {
+    const todos = [...dadosCompletos.crossDocking, ...dadosCompletos.coletas];
+    const destinos = [...new Set(todos.map(d => d.DESTINO).filter(d => d && d !== '--' && d !== '#N/D'))];
+    const selectDest = document.getElementById('filtroDestino');
+    while (selectDest.options.length > 1) selectDest.remove(1);
+    destinos.sort().forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        selectDest.appendChild(opt);
+    });
+    
+    const transportadoras = [...new Set(todos.map(d => d.TRANSPORTADORA).filter(d => d && d !== '--' && d !== '#N/D'))];
+    const selectTransp = document.getElementById('filtroTransportadora');
+    while (selectTransp.options.length > 1) selectTransp.remove(1);
+    transportadoras.sort().forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        selectTransp.appendChild(opt);
+    });
+}
+
+function aplicarFiltros() {
+    if (!arquivoCarregado) {
+        dadosFiltrados = { crossDocking: [], farolAtrasos: [], coletas: [] };
+        atualizarTodosGraficos();
+        return;
+    }
+    
+    const tipoFiltro = document.getElementById('filtroTipo').value;
+    const destinoFiltro = document.getElementById('filtroDestino').value;
+    const transpFiltro = document.getElementById('filtroTransportadora').value;
+    const dataInicio = document.getElementById('filtroDataInicio').value;
+    const dataFim = document.getElementById('filtroDataFim').value;
+    
+    const dataInicioObj = dataInicio ? new Date(dataInicio + 'T00:00:00') : null;
+    const dataFimObj = dataFim ? new Date(dataFim + 'T23:59:59') : null;
+    
+    dadosFiltrados.crossDocking = dadosCompletos.crossDocking.filter(d => {
+        if (tipoFiltro !== 'TODOS' && d.TIPO_OPERACAO !== tipoFiltro) return false;
+        if (destinoFiltro !== 'TODOS' && d.DESTINO !== destinoFiltro) return false;
+        if (transpFiltro !== 'TODOS' && d.TRANSPORTADORA !== transpFiltro) return false;
+        
+        if (dataInicioObj || dataFimObj) {
+            const dataItem = getDataFromString(d.DATA_AGENDA);
+            if (dataItem) {
+                if (dataInicioObj && dataItem < dataInicioObj) return false;
+                if (dataFimObj && dataItem > dataFimObj) return false;
+            } else {
+                if (dataInicioObj || dataFimObj) return false;
+            }
+        }
+        return true;
+    });
+    
+    dadosFiltrados.farolAtrasos = dadosCompletos.farolAtrasos.filter(d => {
+        if (destinoFiltro !== 'TODOS' && d.Destino !== destinoFiltro) return false;
+        if (transpFiltro !== 'TODOS' && d.Transportadora !== transpFiltro) return false;
+        
+        if (dataInicioObj || dataFimObj) {
+            if (d.DataObj) {
+                if (dataInicioObj && d.DataObj < dataInicioObj) return false;
+                if (dataFimObj && d.DataObj > dataFimObj) return false;
+            } else {
+                if (dataInicioObj || dataFimObj) return false;
+            }
+        }
+        return true;
+    });
+    
+    dadosFiltrados.coletas = dadosCompletos.coletas.filter(d => {
+        if (destinoFiltro !== 'TODOS' && d.DESTINO !== destinoFiltro) return false;
+        if (transpFiltro !== 'TODOS' && d.TRANSPORTADORA !== transpFiltro) return false;
+        
+        if (dataInicioObj || dataFimObj) {
+            if (d.DataObj) {
+                if (dataInicioObj && d.DataObj < dataInicioObj) return false;
+                if (dataFimObj && d.DataObj > dataFimObj) return false;
+            } else {
+                if (dataInicioObj || dataFimObj) return false;
+            }
+        }
+        return true;
+    });
+    
+    atualizarTodosGraficos();
+}
+
+// ============================================================
+// GRÁFICOS - CROSS DOCKING
+// ============================================================
+
+function atualizarGraficosCrossDocking() {
+    const dados = dadosFiltrados.crossDocking;
+    const total = dados.length;
+    
+    if (!total) {
+        document.getElementById('cdOnTime').textContent = '0%';
+        document.getElementById('cdOffTime').textContent = '0%';
+        document.getElementById('cdEmRota').textContent = '0';
+        document.getElementById('cdMediaKm').textContent = '0';
+        document.getElementById('cdOnTimeDetalhe').textContent = '0 de 0';
+        document.getElementById('cdOffTimeDetalhe').textContent = '0 de 0';
+        document.getElementById('cdCorpoTabela').innerHTML = '<tr><td colspan="6" class="text-center text-muted">Nenhum dado</td></tr>';
+        return;
+    }
+    
+    const onTime = dados.filter(d => d.ON_TIME_CARREGAMENTO === 'ON TIME').length;
+    const offTime = dados.filter(d => d.ON_TIME_CARREGAMENTO === 'OFF TIME').length;
+    const emRota = dados.filter(d => d.STATUS_VIAGEM === 'EM ROTA').length;
+    const kms = dados.map(d => d.KM || 0);
+    const mediaKm = kms.length ? (kms.reduce((a,b) => a+b, 0) / kms.length).toFixed(0) : 0;
+    
+    document.getElementById('cdOnTime').textContent = Math.round((onTime/total)*100) + '%';
+    document.getElementById('cdOnTimeDetalhe').textContent = onTime + ' de ' + total;
+    document.getElementById('cdOffTime').textContent = Math.round((offTime/total)*100) + '%';
+    document.getElementById('cdOffTimeDetalhe').textContent = offTime + ' de ' + total;
+    document.getElementById('cdEmRota').textContent = emRota;
+    document.getElementById('cdMediaKm').textContent = mediaKm;
+    
+    // Gráfico Status
+    const statusCount = {};
+    dados.forEach(d => { const s = d.STATUS_VIAGEM || 'Indefinido'; statusCount[s] = (statusCount[s] || 0) + 1; });
+    const ctx1 = document.getElementById('cdGraficoStatus').getContext('2d');
+    if (graficos.cdStatus) graficos.cdStatus.destroy();
+    graficos.cdStatus = new Chart(ctx1, {
+        type: 'doughnut',
+        data: { labels: Object.keys(statusCount), datasets: [{ data: Object.values(statusCount), backgroundColor: ['#28a745','#ffc107','#dc3545','#0d6efd','#6c757d','#17a2b8'] }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+    });
+    
+    // Gráfico Destinos
+    const destinos = {};
+    dados.forEach(d => { const dest = d.DESTINO || 'Indefinido'; destinos[dest] = (destinos[dest] || 0) + 1; });
+    const sorted = Object.entries(destinos).sort((a,b) => b[1] - a[1]).slice(0, 5);
+    const ctx2 = document.getElementById('cdGraficoDestinos').getContext('2d');
+    if (graficos.cdDestinos) graficos.cdDestinos.destroy();
+    graficos.cdDestinos = new Chart(ctx2, {
+        type: 'bar',
+        data: { labels: sorted.map(d => d[0]), datasets: [{ label: 'Quantidade', data: sorted.map(d => d[1]), backgroundColor: ['#0d6efd','#6610f2','#6f42c1','#d63384','#dc3545'] }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+    
+    // Gráfico Atrasos
+    const motivos = {};
+    dados.forEach(d => {
+        if (d.MOTIVO_ATRASO && d.MOTIVO_ATRASO !== '--' && d.MOTIVO_ATRASO !== '#N/D' && d.MOTIVO_ATRASO !== '') {
+            motivos[d.MOTIVO_ATRASO] = (motivos[d.MOTIVO_ATRASO] || 0) + 1;
+        }
+    });
+    const sortedMotivos = Object.entries(motivos).sort((a,b) => b[1] - a[1]).slice(0, 5);
+    const ctx3 = document.getElementById('cdGraficoAtrasos').getContext('2d');
+    if (graficos.cdAtrasos) graficos.cdAtrasos.destroy();
+    graficos.cdAtrasos = new Chart(ctx3, {
+        type: 'bar',
+        data: { labels: sortedMotivos.map(m => m[0].length > 20 ? m[0].substring(0,20)+'...' : m[0]), datasets: [{ label: 'Ocorrências', data: sortedMotivos.map(m => m[1]), backgroundColor: '#ffc107' }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+    
+    // Gráfico Transportadoras
+    const transp = {};
+    dados.forEach(d => {
+        const t = d.TRANSPORTADORA || 'Indefinida';
+        if (!transp[t]) transp[t] = { total: 0, onTime: 0 };
+        transp[t].total++;
+        if (d.ON_TIME_CARREGAMENTO === 'ON TIME') transp[t].onTime++;
+    });
+    const labels = Object.keys(transp).slice(0, 5);
+    const pct = labels.map(t => Math.round((transp[t].onTime / transp[t].total) * 100));
+    const ctx4 = document.getElementById('cdGraficoTransportadoras').getContext('2d');
+    if (graficos.cdTransp) graficos.cdTransp.destroy();
+    graficos.cdTransp = new Chart(ctx4, {
+        type: 'bar',
+        data: { labels: labels, datasets: [{ label: '% On Time', data: pct, backgroundColor: ['#28a745','#20c997','#17a2b8','#0d6efd','#6f42c1'] }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 100 } }, plugins: { legend: { display: false } } }
+    });
+    
+    // =============================================================
+    // TABELA: STATUS DE CARREGAMENTO - COM AGENDA FORMATADA
+    // =============================================================
+    const statusAguardando = [
+        'Aguardando NF',
+        'Aguardando previsão',
+        'Aguardando chegada, veículo com previsão',
+        'Aguardando carregamento'
+    ];
+    
+    const dadosStatus = dados.filter(d => {
+        const status = d.STATUS || '';
+        return statusAguardando.some(s => status.includes(s) || status === s);
+    });
+    
+    const tbodyStatus = document.getElementById('cdCorpoTabelaStatus');
+    const countStatus = dadosStatus.length;
+    document.getElementById('cdStatusCount').textContent = countStatus;
+    
+    if (countStatus === 0) {
+        tbodyStatus.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Nenhuma operação em status de aguardo</td></tr>';
+    } else {
+        const ordemPrioridade = {
+            'Aguardando NF': 1,
+            'Aguardando previsão': 2,
+            'Aguardando chegada, veículo com previsão': 3,
+            'Aguardando carregamento': 4
+        };
+        
+        dadosStatus.sort((a, b) => {
+            const statusA = a.STATUS || '';
+            const statusB = b.STATUS || '';
+            const priorA = ordemPrioridade[statusA] || 99;
+            const priorB = ordemPrioridade[statusB] || 99;
+            return priorA - priorB;
+        });
+        
+        const exibir = dadosStatus.slice(0, 20);
+        
+        tbodyStatus.innerHTML = exibir.map(d => {
+            const status = d.STATUS || '--';
+            let badgeClass = 'aguardando';
+            if (status.includes('NF')) badgeClass = 'aguardando-nf';
+            else if (status.includes('previsão')) badgeClass = 'aguardando-previsao';
+            else if (status.includes('chegada')) badgeClass = 'aguardando-chegada';
+            else if (status.includes('carregamento')) badgeClass = 'aguardando-carregamento';
+            
+            // =============================================================
+            // FORMATA A AGENDA COMO DATA E HORA
+            // =============================================================
+            const agendaFormatada = formatarDataHora(d.AGENDA);
+            
+            const prog = Math.min(d.PROGRESSO || 0, 100);
+            const progClass = prog >= 80 ? 'success' : (prog >= 50 ? 'warning' : 'danger');
+            
+            return `<tr>
+                <td><span class="status-badge ${badgeClass}">${status}</span></td>
+                <td>${d.EXPEDICAO || '--'}</td>
+                <td><strong>${d.DESTINO || '--'}</strong></td>
+                <td>${d.TRANSPORTADORA || '--'}</td>
+                <td><span class="agenda-datetime">${agendaFormatada}</span></td>
+                <td>
+                    <div class="progress" style="height:6px;">
+                        <div class="progress-bar bg-${progClass}" style="width:${prog}%"></div>
+                    </div>
+                    <small class="text-muted">${prog}%</small>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+}
+
+// ============================================================
+// GRÁFICOS - FAROL ATRASOS
+// ============================================================
+
+function atualizarGraficosFarolAtrasos() {
+    const dados = dadosFiltrados.farolAtrasos;
+    
+    if (!dados || dados.length === 0) {
+        document.getElementById('faCriticos').textContent = '0';
+        document.getElementById('faChegada').textContent = '0';
+        document.getElementById('faSemImpacto').textContent = '0';
+        document.getElementById('faCorpoTabela').innerHTML = '<tr><td colspan="6" class="text-center text-muted">Nenhum dado</td></tr>';
+        return;
+    }
+    
+    const criticos = dados.filter(d => d.Status === '🔴' || d.Status === '🟡').length;
+    const chegada = dados.filter(d => d.Status === '🟡').length;
+    const semImpacto = dados.filter(d => d.Status === '🟢' || !d.Status || d.Status === '').length;
+    
+    document.getElementById('faCriticos').textContent = criticos;
+    document.getElementById('faChegada').textContent = chegada;
+    document.getElementById('faSemImpacto').textContent = semImpacto;
+    
+    const ctx1 = document.getElementById('faGraficoDistribuicao').getContext('2d');
+    if (graficos.faDistribuicao) graficos.faDistribuicao.destroy();
+    graficos.faDistribuicao = new Chart(ctx1, {
+        type: 'pie',
+        data: {
+            labels: ['🔴 Crítico', '🟡 Atraso Chegada', '🟢 Sem Impacto'],
+            datasets: [{ data: [criticos, chegada, semImpacto], backgroundColor: ['#dc3545','#ffc107','#28a745'] }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+    });
+    
+    const destinos = {};
+    dados.forEach(d => { const dest = d.Destino || 'Indefinido'; destinos[dest] = (destinos[dest] || 0) + 1; });
+    const sorted = Object.entries(destinos).sort((a,b) => b[1] - a[1]).slice(0, 5);
+    const ctx2 = document.getElementById('faGraficoDestinos').getContext('2d');
+    if (graficos.faDestinos) graficos.faDestinos.destroy();
+    graficos.faDestinos = new Chart(ctx2, {
+        type: 'bar',
+        data: { labels: sorted.map(d => d[0]), datasets: [{ label: 'Atrasos', data: sorted.map(d => d[1]), backgroundColor: '#ffc107' }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+    
+    const tbody = document.getElementById('faCorpoTabela');
+    const exibir = dados.slice(0, 10);
+    tbody.innerHTML = exibir.map(d => {
+        const statusClass = d.Status === '🔴' ? 'critico' : d.Status === '🟡' ? 'atraso' : 'ok';
+        return `<tr>
+            <td>${d.Data || '--'}</td>
+            <td>${d.Destino || '--'}</td>
+            <td>${d.Transportadora || '--'}</td>
+            <td><span class="status-badge ${statusClass}">${d.Status || '--'}</span></td>
+            <td>${d.Motivo || '--'}</td>
+            <td>${d.Responsavel || '--'}</td>
+        </tr>`;
+    }).join('');
+}
+
+// ============================================================
+// GRÁFICOS - COLETAS
+// ============================================================
+
+function atualizarGraficosColetas() {
+    const dados = dadosFiltrados.coletas;
+    
+    if (!dados || dados.length === 0) {
+        document.getElementById('coTotal').textContent = '0';
+        document.getElementById('coCarregados').textContent = '0';
+        document.getElementById('coAndamento').textContent = '0';
+        document.getElementById('coCancelados').textContent = '0';
+        document.getElementById('coCorpoTabela').innerHTML = '<tr><td colspan="6" class="text-center text-muted">Nenhum dado</td></tr>';
+        return;
+    }
+    
+    const total = dados.length;
+    const carregados = dados.filter(d => d.STATUS === 'CARREGADO' || d.STATUS === 'Carregado').length;
+    const andamento = dados.filter(d => d.STATUS === 'AG CARREGAMENTO' || d.STATUS === 'Aguardando carregamento' || d.STATUS === 'AGUARDANDO CARREGAMENTO').length;
+    const cancelados = dados.filter(d => d.STATUS === 'CANCELADO' || d.STATUS === 'Cancelado').length;
+    
+    document.getElementById('coTotal').textContent = total;
+    document.getElementById('coCarregados').textContent = carregados;
+    document.getElementById('coAndamento').textContent = andamento;
+    document.getElementById('coCancelados').textContent = cancelados;
+    
+    const expedicao = {};
+    dados.forEach(d => { const e = d.EXPEDICAO || 'Indefinido'; expedicao[e] = (expedicao[e] || 0) + 1; });
+    const sorted = Object.entries(expedicao).sort((a,b) => b[1] - a[1]).slice(0, 5);
+    const ctx1 = document.getElementById('coGraficoExpedicao').getContext('2d');
+    if (graficos.coExpedicao) graficos.coExpedicao.destroy();
+    graficos.coExpedicao = new Chart(ctx1, {
+        type: 'bar',
+        data: { labels: sorted.map(d => d[0]), datasets: [{ label: 'Coletas', data: sorted.map(d => d[1]), backgroundColor: '#0d6efd' }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+    
+    const statusCount = {};
+    dados.forEach(d => { const s = d.STATUS || 'Indefinido'; statusCount[s] = (statusCount[s] || 0) + 1; });
+    const ctx2 = document.getElementById('coGraficoStatus').getContext('2d');
+    if (graficos.coStatus) graficos.coStatus.destroy();
+    graficos.coStatus = new Chart(ctx2, {
+        type: 'doughnut',
+        data: { labels: Object.keys(statusCount), datasets: [{ data: Object.values(statusCount), backgroundColor: ['#28a745','#ffc107','#0d6efd','#dc3545','#6c757d'] }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+    });
+    
+    const tbody = document.getElementById('coCorpoTabela');
+    const exibir = dados.slice(0, 10);
+    tbody.innerHTML = exibir.map(d => {
+        const statusClass = d.STATUS === 'CARREGADO' ? 'carregado' : 
+                           d.STATUS === 'CANCELADO' ? 'cancelado' : 'aguardando';
+        return `<tr>
+            <td>${d.EXPEDICAO || '--'}</td>
+            <td>${d.DESTINO || '--'}</td>
+            <td>${d.TRANSPORTADORA || '--'}</td>
+            <td><span class="status-badge ${statusClass}">${d.STATUS || '--'}</span></td>
+            <td>${d.CLIENTE || '--'}</td>
+            <td>${d.DATA_COLETA || '--'}</td>
+        </tr>`;
+    }).join('');
+}
+
+// ============================================================
+// GRÁFICOS - RESUMO GERAL
+// ============================================================
+
+function atualizarGraficosResumo() {
+    const todos = [...dadosFiltrados.crossDocking, ...dadosFiltrados.coletas];
+    
+    if (!todos || todos.length === 0) {
+        document.getElementById('rgTotal').textContent = '0';
+        document.getElementById('rgOnTime').textContent = '0%';
+        document.getElementById('rgOffTime').textContent = '0%';
+        document.getElementById('rgEmRota').textContent = '0';
+        document.getElementById('rgCorpoTabela').innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nenhum dado</td></tr>';
+        return;
+    }
+    
+    const total = todos.length;
+    const onTime = todos.filter(d => d.ON_TIME_CARREGAMENTO === 'ON TIME').length;
+    const offTime = todos.filter(d => d.ON_TIME_CARREGAMENTO === 'OFF TIME').length;
+    const emRota = todos.filter(d => d.STATUS_VIAGEM === 'EM ROTA').length;
+    
+    document.getElementById('rgTotal').textContent = total;
+    document.getElementById('rgOnTime').textContent = Math.round((onTime/total)*100) + '%';
+    document.getElementById('rgOffTime').textContent = Math.round((offTime/total)*100) + '%';
+    document.getElementById('rgEmRota').textContent = emRota;
+    
+    const tipos = {};
+    todos.forEach(d => { const t = d.TIPO_OPERACAO || 'Indefinido'; tipos[t] = (tipos[t] || 0) + 1; });
+    const ctx1 = document.getElementById('rgGraficoTipo').getContext('2d');
+    if (graficos.rgTipo) graficos.rgTipo.destroy();
+    graficos.rgTipo = new Chart(ctx1, {
+        type: 'pie',
+        data: { labels: Object.keys(tipos), datasets: [{ data: Object.values(tipos), backgroundColor: ['#0d6efd','#6f42c1','#28a745','#ffc107'] }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+    });
+    
+    const destinos = {};
+    todos.forEach(d => { const dest = d.DESTINO || 'Indefinido'; destinos[dest] = (destinos[dest] || 0) + 1; });
+    const sorted = Object.entries(destinos).sort((a,b) => b[1] - a[1]).slice(0, 5);
+    const ctx2 = document.getElementById('rgGraficoDestinos').getContext('2d');
+    if (graficos.rgDestinos) graficos.rgDestinos.destroy();
+    graficos.rgDestinos = new Chart(ctx2, {
+        type: 'bar',
+        data: { labels: sorted.map(d => d[0]), datasets: [{ label: 'Operações', data: sorted.map(d => d[1]), backgroundColor: '#ffc107' }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+    
+    const transp = {};
+    todos.forEach(d => {
+        const t = d.TRANSPORTADORA || 'Indefinida';
+        if (!transp[t]) transp[t] = { total: 0, onTime: 0 };
+        transp[t].total++;
+        if (d.ON_TIME_CARREGAMENTO === 'ON TIME') transp[t].onTime++;
+    });
+    const tbody = document.getElementById('rgCorpoTabela');
+    const entries = Object.entries(transp).sort((a,b) => b[1].total - a[1].total);
+    tbody.innerHTML = entries.map(([nome, stats]) => {
+        const pct = Math.round((stats.onTime / stats.total) * 100);
+        const badgeClass = pct >= 70 ? 'bg-success' : (pct >= 40 ? 'bg-warning' : 'bg-danger');
+        return `<tr>
+            <td><strong>${nome}</strong></td>
+            <td>${stats.total}</td>
+            <td>${stats.onTime}</td>
+            <td>${stats.total - stats.onTime}</td>
+            <td><span class="badge ${badgeClass}">${pct}%</span></td>
+        </tr>`;
+    }).join('');
+}
+
+// ============================================================
+// ATUALIZAR TODOS OS GRÁFICOS
+// ============================================================
+
+function atualizarTodosGraficos() {
+    atualizarGraficosCrossDocking();
+    atualizarGraficosFarolAtrasos();
+    atualizarGraficosColetas();
+    atualizarGraficosResumo();
+}
+
+// ============================================================
+// EXPORTAÇÃO DE DADOS
+// ============================================================
+
+function exportarDados() {
+    if (!arquivoCarregado) { alert('Nenhum dado para exportar.'); return; }
+    const todos = [...dadosCompletos.crossDocking, ...dadosCompletos.coletas];
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(todos);
+    XLSX.utils.book_append_sheet(wb, ws, 'Dados');
+    XLSX.writeFile(wb, 'farol_middle_mile_exportado.xlsx');
+}
+
+// Adiciona botão de exportação
+document.addEventListener('DOMContentLoaded', function() {
+    const headerCol = document.querySelector('.dashboard-header .col-md-5');
+    if (headerCol) {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-outline-light btn-sm mt-2';
+        btn.innerHTML = '<i class="fas fa-file-export me-1"></i> Exportar';
+        btn.onclick = exportarDados;
+        headerCol.appendChild(btn);
+    }
+});
+
+// ============================================================
+// FALLBACK MANUAL PARA ABAS
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('[data-bs-toggle="tab"]');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            const targetId = this.getAttribute('data-bs-target');
+            const targetPane = document.querySelector(targetId);
+            
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active', 'show');
+            });
+            
+            if (targetPane) {
+                targetPane.classList.add('active', 'show');
+            }
+        });
+    });
+});
+
+console.log('✅ Dashboard interativo carregado!');
+console.log('📊 Importe um arquivo .xlsx para começar.');
+console.log('📅 Use os filtros de data para analisar períodos específicos.');
+console.log('⏳ Na aba Cross Docking, a coluna "Agenda" exibe Data e Hora formatados.');
+</script>
+
+</body>
+</html>
