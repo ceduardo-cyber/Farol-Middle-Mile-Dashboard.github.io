@@ -1,13 +1,13 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📊 Farol Middle Mile - Dashboard Interativo</title>
+    <title>ðŸ“Š Farol Middle Mile - Dashboard Interativo</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap 5 JS (OBRIGATÓRIO PARA ABAS) -->
+    <!-- Bootstrap 5 JS (OBRIGATÃ“RIO PARA ABAS) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -329,13 +329,13 @@
                 </h1>
                 <p class="mb-0" style="opacity:0.8; font-size:0.9rem;">
                     <i class="fas fa-calendar-alt me-1"></i> 
-                    Cross Docking | Transferências | Coletas | Atrasos
+                    Cross Docking | TransferÃªncias | Coletas | Atrasos
                 </p>
             </div>
             <div class="col-md-5 text-md-end">
                 <div class="update-time">
                     <i class="fas fa-sync-alt me-1"></i>
-                    Última atualização: <span id="ultimaAtualizacao">--</span>
+                    Ãšltima atualizaÃ§Ã£o: <span id="ultimaAtualizacao">--</span>
                 </div>
                 <div class="mt-1">
                     <span class="badge bg-light text-dark" id="totalRegistros">
@@ -352,7 +352,7 @@
 
 <div class="container">
 
-    <!-- ÁREA DE UPLOAD -->
+    <!-- ÃREA DE UPLOAD -->
     <div class="card-dashboard">
         <div class="row align-items-center">
             <div class="col-md-8">
@@ -384,7 +384,7 @@
             <div class="col-md-8">
                 <div id="msalStatus" class="small text-muted">
                     <i class="fab fa-microsoft me-1"></i>
-                    Conexão automática com SharePoint: <strong id="msalStatusTexto">desconectado</strong>
+                    ConexÃ£o automÃ¡tica com SharePoint: <strong id="msalStatusTexto">desconectado</strong>
                 </div>
             </div>
             <div class="col-md-4 text-md-end">
@@ -402,11 +402,11 @@
     <div class="filter-section">
         <div class="row g-2 align-items-end">
             <div class="col-md-2">
-                <label class="form-label fw-semibold small mb-0">Tipo Operação</label>
+                <label class="form-label fw-semibold small mb-0">Tipo OperaÃ§Ã£o</label>
                 <select id="filtroTipo" class="form-select form-select-sm">
                     <option value="TODOS">Todos</option>
                     <option value="CROSS DOCKING">Cross Docking</option>
-                    <option value="TRANSFERÊNCIA">Transferência</option>
+                    <option value="TRANSFERÃŠNCIA">TransferÃªncia</option>
                     <option value="COLETA">Coleta</option>
                 </select>
             </div>
@@ -444,10 +444,10 @@
         <div class="row mt-2">
             <div class="col-md-12">
                 <span class="text-muted small me-2">Atalhos:</span>
-                <button class="btn btn-outline-secondary btn-sm" onclick="setarFiltroData(7)">Últimos 7 dias</button>
-                <button class="btn btn-outline-secondary btn-sm" onclick="setarFiltroData(15)">Últimos 15 dias</button>
-                <button class="btn btn-outline-secondary btn-sm" onclick="setarFiltroData(30)">Últimos 30 dias</button>
-                <button class="btn btn-outline-secondary btn-sm" onclick="setarFiltroData(90)">Últimos 90 dias</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="setarFiltroData(7)">Ãšltimos 7 dias</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="setarFiltroData(15)">Ãšltimos 15 dias</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="setarFiltroData(30)">Ãšltimos 30 dias</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="setarFiltroData(90)">Ãšltimos 90 dias</button>
                 <button class="btn btn-outline-secondary btn-sm" onclick="limparFiltrosData()">Limpar datas</button>
             </div>
         </div>
@@ -530,21 +530,21 @@
                     <div class="kpi-card amarelo">
                         <div class="d-flex justify-content-between">
                             <div>
-                                <div class="kpi-label">Média KM</div>
+                                <div class="kpi-label">MÃ©dia KM</div>
                                 <div class="kpi-value" id="cdMediaKm">0</div>
                             </div>
                             <div class="kpi-icon"><i class="fas fa-road"></i></div>
                         </div>
-                        <small class="text-muted">Distância média</small>
+                        <small class="text-muted">DistÃ¢ncia mÃ©dia</small>
                     </div>
                 </div>
             </div>
 
-            <!-- Gráficos Cross Docking -->
+            <!-- GrÃ¡ficos Cross Docking -->
             <div class="row">
                 <div class="col-md-6">
                     <div class="card-dashboard">
-                        <div class="card-title"><i class="fas fa-chart-pie me-2 text-primary"></i>Status das Operações</div>
+                        <div class="card-title"><i class="fas fa-chart-pie me-2 text-primary"></i>Status das OperaÃ§Ãµes</div>
                         <div class="chart-container"><canvas id="cdGraficoStatus"></canvas></div>
                     </div>
                 </div>
@@ -579,7 +579,7 @@
                         <i class="fas fa-clock me-2 text-warning"></i>
                         Status de Carregamento
                         <span class="card-status-count ms-2">
-                            <strong id="cdStatusCount">0</strong> operações aguardando
+                            <strong id="cdStatusCount">0</strong> operaÃ§Ãµes aguardando
                         </span>
                     </div>
                     <div>
@@ -591,7 +591,7 @@
                         <thead>
                             <tr>
                                 <th>Status</th>
-                                <th>Expedição</th>
+                                <th>ExpediÃ§Ã£o</th>
                                 <th>Destino</th>
                                 <th>Transportadora</th>
                                 <th style="min-width:160px;">Agenda (Data & Hora)</th>
@@ -599,7 +599,7 @@
                             </tr>
                         </thead>
                         <tbody id="cdCorpoTabelaStatus">
-                            <tr><td colspan="6" class="text-center text-muted">Nenhuma operação em status de aguardo</td></tr>
+                            <tr><td colspan="6" class="text-center text-muted">Nenhuma operaÃ§Ã£o em status de aguardo</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -617,19 +617,19 @@
                     <div class="kpi-card vermelho">
                         <div class="d-flex justify-content-between">
                             <div>
-                                <div class="kpi-label">🔴 Críticos</div>
+                                <div class="kpi-label">ðŸ”´ CrÃ­ticos</div>
                                 <div class="kpi-value" id="faCriticos">0</div>
                             </div>
                             <div class="kpi-icon"><i class="fas fa-exclamation-triangle"></i></div>
                         </div>
-                        <small class="text-muted">Possível impacto nas rotas</small>
+                        <small class="text-muted">PossÃ­vel impacto nas rotas</small>
                     </div>
                 </div>
                 <div class="col-md-4 col-6">
                     <div class="kpi-card amarelo">
                         <div class="d-flex justify-content-between">
                             <div>
-                                <div class="kpi-label">🟡 Atraso Chegada</div>
+                                <div class="kpi-label">ðŸŸ¡ Atraso Chegada</div>
                                 <div class="kpi-value" id="faChegada">0</div>
                             </div>
                             <div class="kpi-icon"><i class="fas fa-clock"></i></div>
@@ -641,12 +641,12 @@
                     <div class="kpi-card verde">
                         <div class="d-flex justify-content-between">
                             <div>
-                                <div class="kpi-label">🟢 Sem Impacto</div>
+                                <div class="kpi-label">ðŸŸ¢ Sem Impacto</div>
                                 <div class="kpi-value" id="faSemImpacto">0</div>
                             </div>
                             <div class="kpi-icon"><i class="fas fa-check-circle"></i></div>
                         </div>
-                        <small class="text-muted">Operações normais</small>
+                        <small class="text-muted">OperaÃ§Ãµes normais</small>
                     </div>
                 </div>
             </div>
@@ -654,7 +654,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="card-dashboard">
-                        <div class="card-title"><i class="fas fa-chart-pie me-2 text-primary"></i>Distribuição dos Atrasos</div>
+                        <div class="card-title"><i class="fas fa-chart-pie me-2 text-primary"></i>DistribuiÃ§Ã£o dos Atrasos</div>
                         <div class="chart-container"><canvas id="faGraficoDistribuicao"></canvas></div>
                     </div>
                 </div>
@@ -666,10 +666,10 @@
                 </div>
             </div>
             <div class="card-dashboard">
-                <div class="card-title"><i class="fas fa-list me-2 text-secondary"></i>Últimos Atrasos</div>
+                <div class="card-title"><i class="fas fa-list me-2 text-secondary"></i>Ãšltimos Atrasos</div>
                 <div class="table-responsive">
                     <table class="table table-dashboard table-striped" id="faTabela">
-                        <thead><tr><th>Data</th><th>Destino</th><th>Transportadora</th><th>Status</th><th>Motivo</th><th>Responsável</th></tr></thead>
+                        <thead><tr><th>Data</th><th>Destino</th><th>Transportadora</th><th>Status</th><th>Motivo</th><th>ResponsÃ¡vel</th></tr></thead>
                         <tbody id="faCorpoTabela"><tr><td colspan="6" class="text-center text-muted">Nenhum dado</td></tr></tbody>
                     </table>
                 </div>
@@ -734,7 +734,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="card-dashboard">
-                        <div class="card-title"><i class="fas fa-chart-bar me-2 text-success"></i>Coletas por Expedição</div>
+                        <div class="card-title"><i class="fas fa-chart-bar me-2 text-success"></i>Coletas por ExpediÃ§Ã£o</div>
                         <div class="chart-container"><canvas id="coGraficoExpedicao"></canvas></div>
                     </div>
                 </div>
@@ -746,10 +746,10 @@
                 </div>
             </div>
             <div class="card-dashboard">
-                <div class="card-title"><i class="fas fa-list me-2 text-secondary"></i>Últimas Coletas</div>
+                <div class="card-title"><i class="fas fa-list me-2 text-secondary"></i>Ãšltimas Coletas</div>
                 <div class="table-responsive">
                     <table class="table table-dashboard table-striped" id="coTabela">
-                        <thead><tr><th>Expedição</th><th>Destino</th><th>Transportadora</th><th>Status</th><th>Cliente</th><th>Data Coleta</th></tr></thead>
+                        <thead><tr><th>ExpediÃ§Ã£o</th><th>Destino</th><th>Transportadora</th><th>Status</th><th>Cliente</th><th>Data Coleta</th></tr></thead>
                         <tbody id="coCorpoTabela"><tr><td colspan="6" class="text-center text-muted">Nenhum dado</td></tr></tbody>
                     </table>
                 </div>
@@ -765,7 +765,7 @@
                     <div class="kpi-card roxo">
                         <div class="d-flex justify-content-between">
                             <div>
-                                <div class="kpi-label">Total Operações</div>
+                                <div class="kpi-label">Total OperaÃ§Ãµes</div>
                                 <div class="kpi-value" id="rgTotal">0</div>
                             </div>
                             <div class="kpi-icon"><i class="fas fa-database"></i></div>
@@ -814,7 +814,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="card-dashboard">
-                        <div class="card-title"><i class="fas fa-chart-pie me-2 text-primary"></i>Distribuição por Tipo</div>
+                        <div class="card-title"><i class="fas fa-chart-pie me-2 text-primary"></i>DistribuiÃ§Ã£o por Tipo</div>
                         <div class="chart-container"><canvas id="rgGraficoTipo"></canvas></div>
                     </div>
                 </div>
@@ -846,7 +846,7 @@
 <!-- FOOTER -->
 <div class="text-center text-muted py-3" style="font-size:0.85rem; border-top:1px solid #dee2e6; margin-top:30px;">
     <i class="fas fa-sync-alt fa-spin me-1"></i>
-    Após conectar, atualiza automaticamente a cada 5 minutos
+    ApÃ³s conectar, atualiza automaticamente a cada 5 minutos
     <span class="mx-2">|</span>
     <i class="far fa-calendar-alt me-1"></i>
     Farol Middle Mile 2026
@@ -854,7 +854,7 @@
 
 <script>
 // ============================================================
-// VARIÁVEIS GLOBAIS
+// VARIÃVEIS GLOBAIS
 // ============================================================
 let dadosCompletos = {
     crossDocking: [],
@@ -868,22 +868,22 @@ let dadosFiltrados = {
 };
 let arquivoCarregado = false;
 
-// Gráficos
+// GrÃ¡ficos
 let graficos = {};
 
 // ============================================================
-// CONEXÃO AUTOMÁTICA COM SHAREPOINT (MSAL + Microsoft Graph)
+// CONEXÃƒO AUTOMÃTICA COM SHAREPOINT (MSAL + Microsoft Graph)
 // ============================================================
 // PREENCHER com os dados do app registrado no Azure AD (ver guia enviado):
 const MSAL_CLIENT_ID = '21fbc206-8034-461d-9dc8-7278e8410838';
 const MSAL_TENANT_ID  = 'df445c7c-1270-48e6-89e6-966c8feae444';
 
-// Identificação fixa do arquivo "Farol Middle Mile - Coletas - Transferencias 2026"
-// (o item ID é estável mesmo se o arquivo for renomeado; obtido via busca no SharePoint)
+// IdentificaÃ§Ã£o fixa do arquivo "Farol Middle Mile - Coletas - Transferencias 2026"
+// (o item ID Ã© estÃ¡vel mesmo se o arquivo for renomeado; obtido via busca no SharePoint)
 const SHAREPOINT_DRIVE_ID = 'b!nWqW410smE2SioVB9yM0rYeH5Oaalp1ArFL9a2z2Rpr33IFdywGkT5pg4CBgCO0b';
 const SHAREPOINT_ITEM_ID  = '012UAVVZ4Z6FJMCL3ISVHLZC63RWKU3ZEF';
 
-// Intervalo de atualização automática (em minutos)
+// Intervalo de atualizaÃ§Ã£o automÃ¡tica (em minutos)
 const INTERVALO_ATUALIZACAO_MIN = 5;
 
 let msalApp = null;
@@ -897,7 +897,7 @@ function msalConfigurado() {
 
 function inicializarMsal() {
     if (!msalConfigurado()) {
-        document.getElementById('msalStatusTexto').textContent = 'não configurado (ver instruções do Azure AD)';
+        document.getElementById('msalStatusTexto').textContent = 'nÃ£o configurado (ver instruÃ§Ãµes do Azure AD)';
         document.getElementById('btnConectarMS').disabled = true;
         return;
     }
@@ -926,7 +926,7 @@ function inicializarMsal() {
 
 async function conectarMicrosoft() {
     if (!msalConfigurado()) {
-        alert('A conexão automática ainda não foi configurada. Siga o guia de registro no Azure AD e preencha MSAL_CLIENT_ID / MSAL_TENANT_ID no código.');
+        alert('A conexÃ£o automÃ¡tica ainda nÃ£o foi configurada. Siga o guia de registro no Azure AD e preencha MSAL_CLIENT_ID / MSAL_TENANT_ID no cÃ³digo.');
         return;
     }
     try {
@@ -935,7 +935,7 @@ async function conectarMicrosoft() {
         aoConectar();
     } catch (err) {
         console.error('Erro no login Microsoft:', err);
-        mostrarMensagem('danger', '❌ Não foi possível conectar à conta Microsoft.');
+        mostrarMensagem('danger', 'âŒ NÃ£o foi possÃ­vel conectar Ã  conta Microsoft.');
     }
 }
 
@@ -966,7 +966,7 @@ async function atualizarDaPlanilha() {
     try {
         const token = await obterTokenGraph();
         const url = `https://graph.microsoft.com/v1.0/drives/${SHAREPOINT_DRIVE_ID}/items/${SHAREPOINT_ITEM_ID}/content`;
-        const resp = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+        const resp = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
 
         if (!resp.ok) throw new Error(`Graph API retornou status ${resp.status}`);
 
@@ -981,14 +981,14 @@ async function atualizarDaPlanilha() {
         atualizarDashboard();
 
         document.getElementById('fileInfo').style.display = 'block';
-        document.getElementById('fileName').textContent = 'Farol Middle Mile 2026 (SharePoint - automático)';
+        document.getElementById('fileName').textContent = 'Farol Middle Mile 2026 (SharePoint - automÃ¡tico)';
         document.getElementById('statusArquivo').innerHTML = '<i class="fas fa-cloud text-success me-1"></i> Sincronizado com SharePoint';
 
         const total = dadosCompletos.crossDocking.length + dadosCompletos.coletas.length;
-        mostrarMensagem('success', `✅ ${total} registros atualizados do SharePoint (${new Date().toLocaleTimeString('pt-BR')})`);
+        mostrarMensagem('success', `âœ… ${total} registros atualizados do SharePoint (${new Date().toLocaleTimeString('pt-BR')})`);
     } catch (err) {
         console.error('Erro ao atualizar da planilha:', err);
-        mostrarMensagem('danger', '❌ Falha ao buscar dados do SharePoint. O token pode ter expirado ou o acesso foi revogado.');
+        mostrarMensagem('danger', 'âŒ Falha ao buscar dados do SharePoint. O token pode ter expirado ou o acesso foi revogado.');
     }
 }
 
@@ -1057,11 +1057,11 @@ function processarArquivo(file) {
             atualizarDashboard();
             
             const total = dadosCompletos.crossDocking.length + dadosCompletos.coletas.length;
-            mostrarMensagem('success', `✅ ${total} registros importados de ${Object.keys(workbook.Sheets).length} abas!`);
+            mostrarMensagem('success', `âœ… ${total} registros importados de ${Object.keys(workbook.Sheets).length} abas!`);
             
         } catch (error) {
             console.error('Erro:', error);
-            mostrarMensagem('danger', '❌ Erro ao ler o arquivo. Verifique se é um Excel válido.');
+            mostrarMensagem('danger', 'âŒ Erro ao ler o arquivo. Verifique se Ã© um Excel vÃ¡lido.');
         }
     };
     reader.readAsArrayBuffer(file);
@@ -1075,7 +1075,7 @@ function removerArquivo() {
     document.getElementById('fileInput').value = '';
     document.getElementById('statusArquivo').innerHTML = '<i class="fas fa-file-excel me-1"></i> Nenhum arquivo';
     atualizarDashboard();
-    mostrarMensagem('info', '🔄 Dados removidos. Importe um novo arquivo.');
+    mostrarMensagem('info', 'ðŸ”„ Dados removidos. Importe um novo arquivo.');
 }
 
 function mostrarMensagem(tipo, texto) {
@@ -1099,7 +1099,7 @@ function mostrarMensagem(tipo, texto) {
 function processarCrossDocking(workbook) {
     const sheet = workbook.Sheets['Cross Docking'];
     if (!sheet) {
-        console.warn('Aba "Cross Docking" não encontrada');
+        console.warn('Aba "Cross Docking" nÃ£o encontrada');
         return;
     }
     
@@ -1109,8 +1109,8 @@ function processarCrossDocking(workbook) {
     dadosCompletos.crossDocking = raw
         .filter(row => row['DESTINO'] && row['DESTINO'] !== '#N/D')
         .map(row => ({
-            TIPO_OPERACAO: row['TIPO DE OPERAÇÃO'] || row['TIPO_OPERACAO'] || '--',
-            EXPEDICAO: row['EXPEDIÇÃO'] || '--',
+            TIPO_OPERACAO: row['TIPO DE OPERAÃ‡ÃƒO'] || row['TIPO_OPERACAO'] || '--',
+            EXPEDICAO: row['EXPEDIÃ‡ÃƒO'] || '--',
             DESTINO: row['DESTINO'] || '--',
             TRANSPORTADORA: row['TRANSPORTADORA'] || '--',
             STATUS_VIAGEM: row['STATUS DE VIAGEM'] || row['STATUS_VIAGEM'] || '--',
@@ -1122,7 +1122,7 @@ function processarCrossDocking(workbook) {
             MOTIVO_ATRASO: row['MOTIVO ATRASO CARREGAMENTO'] || row['MOTIVO_ATRASO'] || '--',
             RESPONSAVEL: row['RESPONSAVEL'] || '--',
             TIPOLOGIA: row['TIPOLOGIA CARGA'] || row['TIPOLOGIA'] || '--',
-            CONFIRMACAO: row['CONFIRMAÇÃO DE DESCARGA'] || row['CONFIRMACAO_DESCARGA'] || '--',
+            CONFIRMACAO: row['CONFIRMAÃ‡ÃƒO DE DESCARGA'] || row['CONFIRMACAO_DESCARGA'] || '--',
             DATA_AGENDA: row['AGENDA CARREGAMENTO'] || row['AGENDA'] || null,
             AGENDA: row['AGENDA CARREGAMENTO'] || row['AGENDA'] || '--'
         }));
@@ -1133,7 +1133,7 @@ function processarCrossDocking(workbook) {
 function processarFarolAtrasos(workbook) {
     const sheet = workbook.Sheets['Farol atrasos'];
     if (!sheet) {
-        console.warn('Aba "Farol atrasos" não encontrada');
+        console.warn('Aba "Farol atrasos" nÃ£o encontrada');
         return;
     }
     
@@ -1159,7 +1159,7 @@ function processarFarolAtrasos(workbook) {
             return {
                 Data: dataRaw,
                 DataObj: dataObj,
-                Expedicao: row['Expedição'] || row['EXPEDIÇÃO'] || '--',
+                Expedicao: row['ExpediÃ§Ã£o'] || row['EXPEDIÃ‡ÃƒO'] || '--',
                 Destino: row['Destino'] || row['DESTINO'] || '--',
                 Transportadora: row['Tranportador'] || row['Transportador'] || row['TRANSPORTADORA'] || '--',
                 Status: row['Status'] || '--',
@@ -1168,10 +1168,10 @@ function processarFarolAtrasos(workbook) {
                 KmRestante: row['Km restante'] || row['KM RESTANTE'] || 0,
                 Agenda: row['Agenda'] || '--',
                 PrevChegada: row['Prev. Chegada'] || row['PREV_CHEGADA'] || '--',
-                HorarioChegada: row['HORÁRIO DE CHEGADA'] || row['HORARIO_CHEGADA'] || '--',
+                HorarioChegada: row['HORÃRIO DE CHEGADA'] || row['HORARIO_CHEGADA'] || '--',
                 Recebimento: row['Recebimento'] || '--',
                 Impacto: row['Impacto'] || '--',
-                PlanoAcao: row['Plano de Ação'] || row['PLANO_ACAO'] || '--',
+                PlanoAcao: row['Plano de AÃ§Ã£o'] || row['PLANO_ACAO'] || '--',
                 Motivo: row['Motivo'] || '--',
                 Responsavel: row['REPONSAVEL'] || row['RESPONSAVEL'] || '--'
             };
@@ -1181,7 +1181,7 @@ function processarFarolAtrasos(workbook) {
 }
 
 function processarColetas(workbook) {
-    const nomes = ['Coleta extra', 'Coleta Taboão', 'Coleta Batata', 'Coleta R3'];
+    const nomes = ['Coleta extra', 'Coleta TaboÃ£o', 'Coleta Batata', 'Coleta R3'];
     let todas = [];
     
     nomes.forEach(nome => {
@@ -1195,7 +1195,7 @@ function processarColetas(workbook) {
     
     dadosCompletos.coletas = todas
         .filter(row => {
-            const tipo = row['TIPO DE OPERAÇÃO'] || row['TIPO_OPERACAO'] || '';
+            const tipo = row['TIPO DE OPERAÃ‡ÃƒO'] || row['TIPO_OPERACAO'] || '';
             return tipo.includes('COLETA') || tipo === 'COLETA';
         })
         .map(row => {
@@ -1214,7 +1214,7 @@ function processarColetas(workbook) {
             
             return {
                 TIPO_OPERACAO: 'COLETA',
-                EXPEDICAO: row['EXPEDIÇÃO'] || '--',
+                EXPEDICAO: row['EXPEDIÃ‡ÃƒO'] || '--',
                 DESTINO: row['DESTINO'] || '--',
                 TRANSPORTADORA: row['TRANSPORTADORA'] || '--',
                 STATUS: row['STATUS'] || row['Status'] || '--',
@@ -1222,7 +1222,7 @@ function processarColetas(workbook) {
                 DATA_COLETA: dataColeta,
                 DataObj: dataObj,
                 DATA_ENTREGA: row['DATA DE ENTREGA'] || row['Data de Entrega'] || '--',
-                CONFIRMACAO: row['CONFIRMAÇÃO DE DESCARGA'] || row['Confirmacao'] || '--',
+                CONFIRMACAO: row['CONFIRMAÃ‡ÃƒO DE DESCARGA'] || row['Confirmacao'] || '--',
                 CUSTO: row['CUSTO'] || row['Custo'] || 0,
                 PRODUTO: row['PRODUTO'] || '--',
                 PLACA: row['PLACA'] || row['Placa'] || '--'
@@ -1233,13 +1233,13 @@ function processarColetas(workbook) {
 }
 
 // ============================================================
-// FUNÇÃO PARA FORMATAR DATA/HORA
+// FUNÃ‡ÃƒO PARA FORMATAR DATA/HORA
 // ============================================================
 
 function formatarDataHora(valor) {
     if (!valor || valor === '--' || valor === '#N/D' || valor === '#REF!') return '--';
     
-    // Se for um número (data serial do Excel)
+    // Se for um nÃºmero (data serial do Excel)
     if (typeof valor === 'number') {
         try {
             const data = new Date((valor - 25569) * 86400 * 1000);
@@ -1262,7 +1262,7 @@ function formatarDataHora(valor) {
         // Tenta parsear como data brasileira (dd/mm/yyyy ou dd/mm/yyyy HH:MM)
         if (valor.includes('/')) {
             try {
-                // Remove espaços extras
+                // Remove espaÃ§os extras
                 valor = valor.trim();
                 
                 // Verifica se tem hora
@@ -1276,7 +1276,7 @@ function formatarDataHora(valor) {
                     let mes = parseInt(dataParts[1]) - 1;
                     let dia = parseInt(dataParts[0]);
                     
-                    // Se ano tem 2 dígitos, assume 20xx
+                    // Se ano tem 2 dÃ­gitos, assume 20xx
                     if (ano < 100) ano += 2000;
                     
                     let horas = 0, minutos = 0;
@@ -1297,7 +1297,7 @@ function formatarDataHora(valor) {
         }
     }
     
-    // Se não conseguiu formatar, retorna o valor original
+    // Se nÃ£o conseguiu formatar, retorna o valor original
     return valor;
 }
 
@@ -1312,7 +1312,7 @@ function formatarDateObj(data) {
 }
 
 // ============================================================
-// FUNÇÕES DE FILTRO POR DATA
+// FUNÃ‡Ã•ES DE FILTRO POR DATA
 // ============================================================
 
 function setarFiltroData(dias) {
@@ -1370,7 +1370,7 @@ function getDataFromString(str) {
 }
 
 // ============================================================
-// ATUALIZAÇÃO DO DASHBOARD
+// ATUALIZAÃ‡ÃƒO DO DASHBOARD
 // ============================================================
 
 function atualizarDashboard() {
@@ -1474,7 +1474,7 @@ function aplicarFiltros() {
 }
 
 // ============================================================
-// GRÁFICOS - CROSS DOCKING
+// GRÃFICOS - CROSS DOCKING
 // ============================================================
 
 function atualizarGraficosCrossDocking() {
@@ -1505,7 +1505,7 @@ function atualizarGraficosCrossDocking() {
     document.getElementById('cdEmRota').textContent = emRota;
     document.getElementById('cdMediaKm').textContent = mediaKm;
     
-    // Gráfico Status
+    // GrÃ¡fico Status
     const statusCount = {};
     dados.forEach(d => { const s = d.STATUS_VIAGEM || 'Indefinido'; statusCount[s] = (statusCount[s] || 0) + 1; });
     const ctx1 = document.getElementById('cdGraficoStatus').getContext('2d');
@@ -1516,7 +1516,7 @@ function atualizarGraficosCrossDocking() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
     });
     
-    // Gráfico Destinos
+    // GrÃ¡fico Destinos
     const destinos = {};
     dados.forEach(d => { const dest = d.DESTINO || 'Indefinido'; destinos[dest] = (destinos[dest] || 0) + 1; });
     const sorted = Object.entries(destinos).sort((a,b) => b[1] - a[1]).slice(0, 5);
@@ -1528,7 +1528,7 @@ function atualizarGraficosCrossDocking() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
     });
     
-    // Gráfico Atrasos
+    // GrÃ¡fico Atrasos
     const motivos = {};
     dados.forEach(d => {
         if (d.MOTIVO_ATRASO && d.MOTIVO_ATRASO !== '--' && d.MOTIVO_ATRASO !== '#N/D' && d.MOTIVO_ATRASO !== '') {
@@ -1540,11 +1540,11 @@ function atualizarGraficosCrossDocking() {
     if (graficos.cdAtrasos) graficos.cdAtrasos.destroy();
     graficos.cdAtrasos = new Chart(ctx3, {
         type: 'bar',
-        data: { labels: sortedMotivos.map(m => m[0].length > 20 ? m[0].substring(0,20)+'...' : m[0]), datasets: [{ label: 'Ocorrências', data: sortedMotivos.map(m => m[1]), backgroundColor: '#ffc107' }] },
+        data: { labels: sortedMotivos.map(m => m[0].length > 20 ? m[0].substring(0,20)+'...' : m[0]), datasets: [{ label: 'OcorrÃªncias', data: sortedMotivos.map(m => m[1]), backgroundColor: '#ffc107' }] },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
     });
     
-    // Gráfico Transportadoras
+    // GrÃ¡fico Transportadoras
     const transp = {};
     dados.forEach(d => {
         const t = d.TRANSPORTADORA || 'Indefinida';
@@ -1567,8 +1567,8 @@ function atualizarGraficosCrossDocking() {
     // =============================================================
     const statusAguardando = [
         'Aguardando NF',
-        'Aguardando previsão',
-        'Aguardando chegada, veículo com previsão',
+        'Aguardando previsÃ£o',
+        'Aguardando chegada, veÃ­culo com previsÃ£o',
         'Aguardando carregamento'
     ];
     
@@ -1582,12 +1582,12 @@ function atualizarGraficosCrossDocking() {
     document.getElementById('cdStatusCount').textContent = countStatus;
     
     if (countStatus === 0) {
-        tbodyStatus.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Nenhuma operação em status de aguardo</td></tr>';
+        tbodyStatus.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Nenhuma operaÃ§Ã£o em status de aguardo</td></tr>';
     } else {
         const ordemPrioridade = {
             'Aguardando NF': 1,
-            'Aguardando previsão': 2,
-            'Aguardando chegada, veículo com previsão': 3,
+            'Aguardando previsÃ£o': 2,
+            'Aguardando chegada, veÃ­culo com previsÃ£o': 3,
             'Aguardando carregamento': 4
         };
         
@@ -1605,7 +1605,7 @@ function atualizarGraficosCrossDocking() {
             const status = d.STATUS || '--';
             let badgeClass = 'aguardando';
             if (status.includes('NF')) badgeClass = 'aguardando-nf';
-            else if (status.includes('previsão')) badgeClass = 'aguardando-previsao';
+            else if (status.includes('previsÃ£o')) badgeClass = 'aguardando-previsao';
             else if (status.includes('chegada')) badgeClass = 'aguardando-chegada';
             else if (status.includes('carregamento')) badgeClass = 'aguardando-carregamento';
             
@@ -1635,7 +1635,7 @@ function atualizarGraficosCrossDocking() {
 }
 
 // ============================================================
-// GRÁFICOS - FAROL ATRASOS
+// GRÃFICOS - FAROL ATRASOS
 // ============================================================
 
 function atualizarGraficosFarolAtrasos() {
@@ -1649,9 +1649,9 @@ function atualizarGraficosFarolAtrasos() {
         return;
     }
     
-    const criticos = dados.filter(d => d.Status === '🔴' || d.Status === '🟡').length;
-    const chegada = dados.filter(d => d.Status === '🟡').length;
-    const semImpacto = dados.filter(d => d.Status === '🟢' || !d.Status || d.Status === '').length;
+    const criticos = dados.filter(d => d.Status === 'ðŸ”´' || d.Status === 'ðŸŸ¡').length;
+    const chegada = dados.filter(d => d.Status === 'ðŸŸ¡').length;
+    const semImpacto = dados.filter(d => d.Status === 'ðŸŸ¢' || !d.Status || d.Status === '').length;
     
     document.getElementById('faCriticos').textContent = criticos;
     document.getElementById('faChegada').textContent = chegada;
@@ -1662,7 +1662,7 @@ function atualizarGraficosFarolAtrasos() {
     graficos.faDistribuicao = new Chart(ctx1, {
         type: 'pie',
         data: {
-            labels: ['🔴 Crítico', '🟡 Atraso Chegada', '🟢 Sem Impacto'],
+            labels: ['ðŸ”´ CrÃ­tico', 'ðŸŸ¡ Atraso Chegada', 'ðŸŸ¢ Sem Impacto'],
             datasets: [{ data: [criticos, chegada, semImpacto], backgroundColor: ['#dc3545','#ffc107','#28a745'] }]
         },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
@@ -1682,7 +1682,7 @@ function atualizarGraficosFarolAtrasos() {
     const tbody = document.getElementById('faCorpoTabela');
     const exibir = dados.slice(0, 10);
     tbody.innerHTML = exibir.map(d => {
-        const statusClass = d.Status === '🔴' ? 'critico' : d.Status === '🟡' ? 'atraso' : 'ok';
+        const statusClass = d.Status === 'ðŸ”´' ? 'critico' : d.Status === 'ðŸŸ¡' ? 'atraso' : 'ok';
         return `<tr>
             <td>${d.Data || '--'}</td>
             <td>${d.Destino || '--'}</td>
@@ -1695,7 +1695,7 @@ function atualizarGraficosFarolAtrasos() {
 }
 
 // ============================================================
-// GRÁFICOS - COLETAS
+// GRÃFICOS - COLETAS
 // ============================================================
 
 function atualizarGraficosColetas() {
@@ -1758,7 +1758,7 @@ function atualizarGraficosColetas() {
 }
 
 // ============================================================
-// GRÁFICOS - RESUMO GERAL
+// GRÃFICOS - RESUMO GERAL
 // ============================================================
 
 function atualizarGraficosResumo() {
@@ -1800,7 +1800,7 @@ function atualizarGraficosResumo() {
     if (graficos.rgDestinos) graficos.rgDestinos.destroy();
     graficos.rgDestinos = new Chart(ctx2, {
         type: 'bar',
-        data: { labels: sorted.map(d => d[0]), datasets: [{ label: 'Operações', data: sorted.map(d => d[1]), backgroundColor: '#ffc107' }] },
+        data: { labels: sorted.map(d => d[0]), datasets: [{ label: 'OperaÃ§Ãµes', data: sorted.map(d => d[1]), backgroundColor: '#ffc107' }] },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
     });
     
@@ -1827,7 +1827,7 @@ function atualizarGraficosResumo() {
 }
 
 // ============================================================
-// ATUALIZAR TODOS OS GRÁFICOS
+// ATUALIZAR TODOS OS GRÃFICOS
 // ============================================================
 
 function atualizarTodosGraficos() {
@@ -1838,7 +1838,7 @@ function atualizarTodosGraficos() {
 }
 
 // ============================================================
-// EXPORTAÇÃO DE DADOS
+// EXPORTAÃ‡ÃƒO DE DADOS
 // ============================================================
 
 function exportarDados() {
@@ -1850,7 +1850,7 @@ function exportarDados() {
     XLSX.writeFile(wb, 'farol_middle_mile_exportado.xlsx');
 }
 
-// Adiciona botão de exportação
+// Adiciona botÃ£o de exportaÃ§Ã£o
 document.addEventListener('DOMContentLoaded', function() {
     const headerCol = document.querySelector('.dashboard-header .col-md-5');
     if (headerCol) {
@@ -1889,10 +1889,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-console.log('✅ Dashboard interativo carregado!');
-console.log('📊 Importe um arquivo .xlsx para começar.');
-console.log('📅 Use os filtros de data para analisar períodos específicos.');
-console.log('⏳ Na aba Cross Docking, a coluna "Agenda" exibe Data e Hora formatados.');
+console.log('âœ… Dashboard interativo carregado!');
+console.log('ðŸ“Š Importe um arquivo .xlsx para comeÃ§ar.');
+console.log('ðŸ“… Use os filtros de data para analisar perÃ­odos especÃ­ficos.');
+console.log('â³ Na aba Cross Docking, a coluna "Agenda" exibe Data e Hora formatados.');
 </script>
 
 </body>
